@@ -1,7 +1,18 @@
+import { resolve } from "node:path";
+
 import { defineConfig } from "vite";
 import glsl from "vite-plugin-glsl";
 
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      input: {
+        // The one-pager, plus the original codrops text demo.
+        main: resolve(__dirname, "index.html"),
+        original: resolve(__dirname, "original.html"),
+      },
+    },
+  },
   plugins: [
     glsl({
       include: [

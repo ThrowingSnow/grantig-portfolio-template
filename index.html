@@ -3,59 +3,71 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Responsive and Accessible WebGL Text With Three.js and Troika | Demo | Codrops</title>
-    <link rel="shortcut icon" href="https://tympanus.net/favicon/favicon.ico" />
-    <link rel="stylesheet" type="text/css" href="src/css/base.css" />
-    <link rel="stylesheet" type="text/css" href="src/css/scroll.css" />
-    <link rel="stylesheet" type="text/css" href="src/css/styles.css" />
+    <title>Lorem Ipsum — 3D Banner, Deform Arrow &amp; Falling Letters</title>
+    <meta
+      name="description"
+      content="A one-pager: extruded 3D headline with pointer reaction, a scroll-deformed arrow, text flying in from every side and letters dropping onto a node."
+    />
+    <link rel="shortcut icon" href="/vite.svg" />
+    <link rel="stylesheet" type="text/css" href="/src/css/scroll.css" />
+    <link rel="stylesheet" type="text/css" href="/src/css/onepage.css" />
     <script>
-      document.documentElement.className = 'js';
+      document.documentElement.className = "js";
     </script>
-    <script src="//tympanus.net/codrops/adpacks/analytics.js"></script>
   </head>
 
   <body class="loading">
-    <main>
-      <header class="frame">
-        <h1 class="frame__title">Responsive and Accessible WebGL Text</h1>
-        <a class="frame__back" href="https://tympanus.net/codrops/?p=92085">Read the article</a>
-        <a class="frame__github" href="https://github.com/ehaakana/codrops-text-demo">Code</a>
-        <a class="frame__archive" href="https://tympanus.net/codrops/demos/">All demos</a>
-        <nav class="frame__tags">
-          <a href="https://tympanus.net/codrops/demos/?tag=scroll">#scroll</a>
-          <a href="https://tympanus.net/codrops/demos/?tag=three-js">#three.js</a>
-          <a href="https://tympanus.net/codrops/demos/?tag=webgl">#webgl</a>
-          <a href="https://tympanus.net/codrops/demos/?tag=typography">#typography</a>
-        </nav>
-      </header>
-      <div class="content">
-        <div class="container">
-          <section class="section__heading">
-            <h3 data-animation="webgl-text" class="text__2">THREE.JS</h3>
-            <h2 data-animation="webgl-text" class="text__1">RESPONSIVE AND ACCESSIBLE TEXT</h2>
-          </section>
-          <section class="section__main__content">
-            <p data-animation="webgl-text" class="text__2">
-              THIS TEXT IS STYLED TO LOOK LIKE A TYPICAL BLOCK OF TEXT ON A STANDARD WEBSITE. BUT UNDER THE SURFACE,
-              IT’S BEING RENDERED WITH WEBGL INSTEAD OF TRADITIONAL HTML.
-            </p>
-            <p data-animation="webgl-text" class="text__2">
-              THIS OPENS THE DOOR TO CUSTOM SHADER EFFECTS AND INTERACTIONS THAT GO BEYOND WHAT’S POSSIBLE WITH
-              TRADITIONAL HTML.
-            </p>
-            <p data-animation="webgl-text" class="text__2">
-              WE KEEP THE UNDERYLING HTML STRUCTURE PRESENT IN THE DOM. RATHER THAN CREATING MESHES DIRECTLY IN
-              THREE.JS, THE SCENE IS BUILT BY READING FROM THE EXISTING HTML CONTENT. THIS WAY, SCREEN READERS, SEARCH
-              ENGINES, AND OTHER TOOLS CAN STILL INTERPRET THE PAGE AS EXPECTED.
-            </p>
-          </section>
-          <section class="section__footer">
-            <p data-animation="webgl-text" class="text__3">NOW GO CRAZY WITH THE SHADERS :)</p>
-          </section>
+    <header class="frame">
+      <span class="frame__title">Lorem Ipsum / One&nbsp;Page</span>
+      <span class="frame__meta">three.js · cannon-es · lenis</span>
+    </header>
+
+    <main class="page">
+      <!-- 1. Banner: five words, extruded in 3D, reacting to the pointer. -->
+      <section class="panel" data-panel="hero">
+        <h1 class="visually-hidden" data-webgl="banner">
+          Lorem ipsum dolor sit amet
+        </h1>
+        <p class="panel__hint">move the cursor · then scroll</p>
+      </section>
+
+      <!-- 2. Holding section: the arrow deforms while the value charges up,
+           then the paragraphs fly in from every side. -->
+      <section class="panel" data-panel="hold">
+        <div class="visually-hidden">
+          <p data-webgl="paragraph">
+            Lorem ipsum dolor sit amet consectetur adipiscing elit sed tempor
+            incididunt labore.
+          </p>
+          <p data-webgl="paragraph">
+            Ut enim ad minim veniam quis nostrud exercitation ullamco laboris
+            nisi aliquip commodo.
+          </p>
+          <p data-webgl="paragraph">
+            Duis aute irure dolor in reprehenderit voluptate velit esse cillum
+            dolore eu fugiat nulla.
+          </p>
         </div>
-      </div>
+      </section>
+
+      <!-- 3. Second scroll: gravity takes over and the letters drop. -->
+      <section class="panel" data-panel="gravity">
+        <p class="panel__note">keep scrolling — gravity follows your wheel</p>
+      </section>
+
+      <section class="panel" data-panel="outro">
+        <p class="panel__note panel__note--end">
+          the letters rest on the node · scroll back up to reset
+        </p>
+      </section>
     </main>
-    <script src="https://tympanus.net/codrops/adpacks/cda_sponsor.js"></script>
-    <script type="module" src="/src/js/main.ts"></script>
+
+    <aside class="hud" aria-hidden="true">
+      <span class="hud__phase" data-hud="phase">banner</span>
+      <span class="hud__value" data-hud="value">0.00</span>
+      <span class="hud__track"><i class="hud__bar" data-hud="meter"></i></span>
+    </aside>
+
+    <script type="module" src="/src/js/onepage/main.ts"></script>
   </body>
 </html>
