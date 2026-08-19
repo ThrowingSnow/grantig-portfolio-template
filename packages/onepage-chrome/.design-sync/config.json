@@ -1,0 +1,56 @@
+{
+  "projectId": "5dfaa839-7600-44b6-8fbf-8496ae4b0316",
+  "pkg": "onepage-chrome",
+  "globalName": "OnepageChrome",
+  "shape": "package",
+  "buildCmd": "npm run build",
+  "srcDir": "src",
+  "tsconfig": "tsconfig.json",
+  "cssEntry": "dist/styles.css",
+  "extraFonts": "styles/fonts.css",
+  "provider": {
+    "component": "OnepageRoot",
+    "props": {
+      "style": {
+        "minHeight": "calc(100vh - 48px)"
+      }
+    }
+  },
+  "overrides": {
+    "OnepageRoot": {
+      "cardMode": "single",
+      "primaryStory": "OnePage",
+      "viewport": "1440x760"
+    },
+    "Loader": {
+      "cardMode": "single",
+      "primaryStory": "Active",
+      "viewport": "1100x480"
+    },
+    "Panel": {
+      "cardMode": "single",
+      "primaryStory": "Hero",
+      "viewport": "1000x620"
+    },
+    "VisuallyHidden": {
+      "viewport": "900x120"
+    },
+    "Frame": {
+      "cardMode": "single",
+      "primaryStory": "Default",
+      "viewport": "1000x170"
+    },
+    "Hud": {
+      "cardMode": "single",
+      "primaryStory": "Charging",
+      "viewport": "1000x150"
+    },
+    "PanelNote": {
+      "viewport": "900x120"
+    },
+    "PanelHint": {
+      "viewport": "900x120"
+    }
+  },
+  "readmeHeader": ".design-sync/conventions.md"
+}

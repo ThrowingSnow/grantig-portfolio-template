@@ -1,0 +1,31 @@
+/* Design tokens — lifted verbatim from src/css/onepage.css :root.
+   The panel heights are the scroll story's single source of truth: the
+   original page's JS reads the panel offsets, so these numbers re-time it. */
+
+:root {
+  --clr-bg: #08090c;
+  --clr-text: #e9e4d8;
+  --clr-accent: #ff6a3d;
+  --clr-muted: rgba(233, 228, 216, 0.45);
+
+  /* The one-pager's content column: 75% of the viewport, centered. */
+  --content-width: 75vw;
+
+  /* Scroll story panel heights. */
+  --panel-hero: 100vh;
+  --panel-hold: 240vh;
+  --panel-gravity: 220vh;
+  --panel-outro: 90vh;
+
+  /* Type families. --font-mono is the body stack from onepage.css.
+     --font-display is Humane, the demo's headline face (rendered through
+     WebGL in the original page; exposed here for DOM headlines). */
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-display: "Humane", ui-monospace, monospace;
+
+  /* Letter-spacing tiers, as used across the original chrome. */
+  --tracking-body: 0.08em;
+  --tracking-title: 0.2em;
+  --tracking-phase: 0.28em;
+  --tracking-hint: 0.32em;
+}

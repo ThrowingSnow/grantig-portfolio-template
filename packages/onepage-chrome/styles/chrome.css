@@ -1,0 +1,218 @@
+/* Chrome component styles — rules carried over from src/css/onepage.css.
+   Class names are unchanged from the original page, so anything built here
+   maps 1:1 back onto the demo's own markup.
+
+   The one structural change: the page-level look that onepage.css puts on
+   `body` lives on `.op-root` here, so a design opts into it by wrapping
+   rather than having every page hijacked. */
+
+.op-root {
+  background: var(--clr-bg);
+  color: var(--clr-text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: var(--tracking-body);
+  text-transform: uppercase;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.op-root *,
+.op-root *::after,
+.op-root *::before {
+  box-sizing: border-box;
+}
+
+/* Panels
+--------------------------------------------------------- */
+
+.panel {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  padding-bottom: 5vh;
+}
+
+.panel[data-panel="hero"] {
+  height: var(--panel-hero);
+}
+
+.panel[data-panel="hold"] {
+  height: var(--panel-hold);
+}
+
+.panel[data-panel="gravity"] {
+  height: var(--panel-gravity);
+  align-items: flex-start;
+  padding-top: 12vh;
+}
+
+.panel[data-panel="outro"] {
+  height: var(--panel-outro);
+}
+
+.panel__hint,
+.panel__note {
+  margin: 0;
+  color: var(--clr-muted);
+  font-size: 0.75rem;
+  letter-spacing: var(--tracking-hint);
+}
+
+.panel__hint {
+  animation: breathe 3.2s ease-in-out infinite alternate;
+}
+
+.panel__note--end {
+  color: rgba(255, 106, 61, 0.6);
+}
+
+/* Frame
+--------------------------------------------------------- */
+
+.frame {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 1.6rem clamp(1rem, calc((100vw - var(--content-width)) / 2), 12rem);
+  pointer-events: none;
+  mix-blend-mode: difference;
+}
+
+.frame__title {
+  font-weight: 700;
+  letter-spacing: var(--tracking-title);
+}
+
+.frame__meta {
+  color: var(--clr-muted);
+  text-transform: none;
+  letter-spacing: 0.12em;
+}
+
+@media (max-width: 700px) {
+  .frame__meta {
+    display: none;
+  }
+
+  .hud__phase {
+    min-width: 5.5em;
+  }
+}
+
+/* Heads-up display for the charge value
+--------------------------------------------------------- */
+
+.hud {
+  position: fixed;
+  bottom: 1.6rem;
+  left: clamp(1rem, calc((100vw - var(--content-width)) / 2), 12rem);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  pointer-events: none;
+}
+
+.hud__phase {
+  min-width: 6.5em;
+  color: var(--clr-accent);
+  letter-spacing: var(--tracking-phase);
+}
+
+.hud__value {
+  color: var(--clr-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.hud__track {
+  display: block;
+  width: 96px;
+  height: 1px;
+  background: rgba(233, 228, 216, 0.2);
+}
+
+.hud__bar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--clr-accent);
+  transform-origin: 0 50%;
+}
+
+/* Utilities
+--------------------------------------------------------- */
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@keyframes breathe {
+  from {
+    opacity: 0.35;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Loader
+--------------------------------------------------------- */
+
+.loading::before,
+.loading::after {
+  content: "";
+  position: fixed;
+  z-index: 10000;
+}
+
+.loading::before {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--clr-bg);
+}
+
+.loading::after {
+  top: 50%;
+  left: 50%;
+  width: 100px;
+  height: 1px;
+  margin: 0 0 0 -50px;
+  background: var(--clr-accent);
+  animation: loaderAnim 1.4s ease-in-out infinite alternate forwards;
+}
+
+@keyframes loaderAnim {
+  0% {
+    transform: scaleX(0);
+    transform-origin: 0% 50%;
+  }
+  50% {
+    transform: scaleX(1);
+    transform-origin: 0% 50%;
+  }
+  50.1% {
+    transform: scaleX(1);
+    transform-origin: 100% 50%;
+  }
+  100% {
+    transform: scaleX(0);
+    transform-origin: 100% 50%;
+  }
+}
