@@ -9,16 +9,26 @@
   --clr-text: #e9e4d8;
   --clr-accent: #ff6a3d;
   --clr-muted: rgba(233, 228, 216, 0.45);
+  --clr-cold: #3ddcff;
 
   /* The one-pager's content column: 75% of the viewport, centered. */
   --content-width: 75vw;
+
+  /* Diameter of the black sphere, written by the JS so the button that sits on
+     top of it always matches what is rendered. */
+  --sphere-size: 220px;
 
   /* Scroll story. The panels are the single source of truth for the timing —
      the JS reads their offsets, so tweaking these numbers re-times the page. */
   --panel-hero: 100vh;
   --panel-hold: 240vh;
-  --panel-gravity: 220vh;
-  --panel-outro: 90vh;
+  --panel-gravity: 190vh;
+  --panel-split: 110vh;
+  --panel-orbit: 140vh;
+  --panel-sweep: 120vh;
+  --panel-flip: 75vh;
+  --panel-drift: 420vh;
+  --panel-tail: 140vh;
 }
 
 html,
@@ -77,8 +87,32 @@ canvas {
   padding-top: 12vh;
 }
 
-.panel[data-panel="outro"] {
-  height: var(--panel-outro);
+.panel[data-panel="split"] {
+  height: var(--panel-split);
+  align-items: flex-start;
+  padding-top: 12vh;
+}
+
+.panel[data-panel="orbit"] {
+  height: var(--panel-orbit);
+  align-items: flex-start;
+  padding-top: 12vh;
+}
+
+.panel[data-panel="sweep"] {
+  height: var(--panel-sweep);
+}
+
+.panel[data-panel="flip"] {
+  height: var(--panel-flip);
+}
+
+.panel[data-panel="drift"] {
+  height: var(--panel-drift);
+}
+
+.tail {
+  height: var(--panel-tail);
 }
 
 .panel__hint,
@@ -118,17 +152,7 @@ canvas {
   letter-spacing: 0.2em;
 }
 
-.frame__meta {
-  color: var(--clr-muted);
-  text-transform: none;
-  letter-spacing: 0.12em;
-}
-
 @media (max-width: 700px) {
-  .frame__meta {
-    display: none;
-  }
-
   .hud__phase {
     min-width: 5.5em;
   }
@@ -175,6 +199,93 @@ canvas {
   transform-origin: 0 50%;
 }
 
+/* The sphere's hit area
+--------------------------------------------------------- */
+
+/* A real button laid over the rendered sphere: keyboard reachable, announced,
+   and it brings its own cursor — a raycast on the canvas would do none of that.
+   The canvas is `pointer-events: none`, so nothing else can swallow the click. */
+.sphere {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: var(--sphere-size);
+  height: var(--sphere-size);
+  margin: calc(var(--sphere-size) / -2) 0 0 calc(var(--sphere-size) / -2);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.7s ease;
+}
+
+.sphere[data-ready="true"] {
+  opacity: 1;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.sphere:focus-visible {
+  outline: 1px solid var(--clr-accent);
+  outline-offset: 0.9rem;
+}
+
+.sphere__label {
+  position: absolute;
+  bottom: -3.2rem;
+  left: 50%;
+  color: var(--clr-accent);
+  font-size: 0.75rem;
+  letter-spacing: 0.32em;
+  transform: translateX(-50%);
+  animation: breathe 2.4s ease-in-out infinite alternate;
+}
+
+/* Two copies of the word lying exactly on top of the original — one in the cold
+   rim colour, one in the accent. They stay fully clipped away and are only
+   opened for a frame at a time, so the word tears instead of blurring. The
+   timeline is long and the tears are narrow slices of it: a glitch that runs
+   continuously stops reading as a glitch and starts reading as broken. */
+.sphere__label::before,
+.sphere__label::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  clip-path: inset(100% 0 0 0);
+  pointer-events: none;
+}
+
+.sphere__label::before {
+  color: var(--clr-cold);
+  animation: glitch-cold 7s steps(1, end) infinite;
+}
+
+.sphere__label::after {
+  color: var(--clr-accent);
+  animation: glitch-hot 7s steps(1, end) infinite;
+}
+
+/* Under the cursor the sphere is unstable — the tears come far more often. */
+.sphere[data-ready="true"]:hover .sphere__label::before,
+.sphere[data-ready="true"]:hover .sphere__label::after,
+.sphere:focus-visible .sphere__label::before,
+.sphere:focus-visible .sphere__label::after {
+  animation-duration: 1.5s;
+}
+
+/* The click itself: the label falls apart while it fades out with the button. */
+.sphere--fired .sphere__label::before,
+.sphere--fired .sphere__label::after {
+  animation-duration: 0.3s;
+}
+
 /* Utilities
 --------------------------------------------------------- */
 
@@ -196,6 +307,81 @@ canvas {
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes glitch-cold {
+  0%,
+  100% {
+    clip-path: inset(100% 0 0 0);
+    transform: none;
+  }
+  1% {
+    clip-path: inset(14% 0 62% 0);
+    transform: translateX(-0.16em);
+  }
+  2% {
+    clip-path: inset(100% 0 0 0);
+    transform: none;
+  }
+  3% {
+    clip-path: inset(58% 0 24% 0);
+    transform: translateX(0.12em);
+  }
+  4%,
+  40% {
+    clip-path: inset(100% 0 0 0);
+    transform: none;
+  }
+  41% {
+    clip-path: inset(36% 0 40% 0);
+    transform: translateX(0.2em);
+  }
+  42% {
+    clip-path: inset(100% 0 0 0);
+    transform: none;
+  }
+}
+
+@keyframes glitch-hot {
+  0%,
+  100% {
+    clip-path: inset(100% 0 0 0);
+    transform: none;
+  }
+  1% {
+    clip-path: inset(52% 0 20% 0);
+    transform: translateX(0.14em);
+  }
+  3% {
+    clip-path: inset(20% 0 58% 0);
+    transform: translateX(-0.1em);
+  }
+  4%,
+  40% {
+    clip-path: inset(100% 0 0 0);
+    transform: none;
+  }
+  41% {
+    clip-path: inset(66% 0 12% 0);
+    transform: translateX(-0.22em);
+  }
+  42% {
+    clip-path: inset(100% 0 0 0);
+    transform: none;
+  }
+}
+
+/* A tearing label is decoration, and decoration is the first thing to go. */
+@media (prefers-reduced-motion: reduce) {
+  .sphere__label {
+    animation: none;
+    opacity: 1;
+  }
+
+  .sphere__label::before,
+  .sphere__label::after {
+    animation: none;
   }
 }
 

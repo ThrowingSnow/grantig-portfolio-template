@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- A tuning tool, not part of the site: keep it out of search results. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Config — Lorem Ipsum / One Page</title>
+    <link rel="stylesheet" href="/src/css/config.css" />
+  </head>
+
+  <body>
+    <aside class="panel">
+      <header class="panel__head">
+        <h1 class="panel__title">Config</h1>
+        <p class="panel__hint">
+          Values are kept in this browser only and never reach the deployed
+          page. Copy them into <code>src/js/onepage/settings.ts</code> to keep
+          them.
+        </p>
+
+        <div class="panel__actions">
+          <button type="button" data-action="copy">Copy settings</button>
+          <button type="button" data-action="reset">Reset all</button>
+        </div>
+      </header>
+
+      <nav class="jump" aria-label="Jump to phase">
+        <span class="jump__label">Jump to</span>
+        <div class="jump__row" data-jump></div>
+        <button type="button" class="jump__click" data-action="collapse">
+          Click the sphere
+        </button>
+      </nav>
+
+      <div class="groups" data-groups></div>
+
+      <footer class="panel__foot">
+        <p>
+          Structural knobs re-lay out the scene. While the letters are already
+          falling the pile is left alone — scroll back up and down to rebuild it.
+        </p>
+      </footer>
+    </aside>
+
+    <main class="stage">
+      <iframe
+        class="stage__frame"
+        title="One page preview"
+        src="/index.html"
+        data-frame
+      ></iframe>
+    </main>
+
+    <output class="toast" data-toast aria-live="polite"></output>
+
+    <script type="module" src="/src/js/config.ts"></script>
+  </body>
+</html>

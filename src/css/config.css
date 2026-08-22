@@ -1,0 +1,300 @@
+/**
+ * The tuning page. Deliberately plain: it sits next to the scene, so anything
+ * eye-catching here competes with the thing being judged.
+ */
+
+:root {
+  --bg: #08090c;
+  --panel: #0e1015;
+  --line: #1e222c;
+  --text: #d7d3c8;
+  --muted: #737a8a;
+  --accent: #ff6a3d;
+
+  --panel-width: 21rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "SF Mono", ui-monospace, "Roboto Mono", monospace;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Panel
+--------------------------------------------------------- */
+
+.panel {
+  flex: 0 0 var(--panel-width);
+  height: 100%;
+  overflow-y: auto;
+  padding: 1.25rem;
+  border-right: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.panel__title {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.panel__hint,
+.panel__foot p {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+}
+
+.panel__hint code {
+  color: var(--text);
+}
+
+.panel__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+button {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Copy
+--------------------------------------------------------- */
+
+.copy__field {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.15rem 0.5rem;
+  margin-top: 0.7rem;
+}
+
+.copy__label {
+  color: var(--muted);
+}
+
+.copy__count {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.copy__field textarea {
+  grid-column: 1 / -1;
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.copy__field textarea:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Over budget: the number is the message, so it is the thing that changes. */
+.copy__field--over .copy__count {
+  color: #ff3b30;
+}
+
+.copy__field--over textarea {
+  border-color: #ff3b30;
+}
+
+.copy__alphabet {
+  margin-top: 0.8rem;
+}
+
+.copy__actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+
+.copy__actions button:disabled {
+  border-color: var(--line);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* Jump
+--------------------------------------------------------- */
+
+.jump {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+
+.jump__label,
+.group__note {
+  color: var(--muted);
+}
+
+.jump__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.6rem;
+}
+
+.jump__row button {
+  flex: 0 0 auto;
+  padding: 0.3rem 0.55rem;
+}
+
+.jump__click {
+  margin-top: 0.5rem;
+}
+
+/* Groups
+--------------------------------------------------------- */
+
+.groups {
+  margin-top: 1.5rem;
+}
+
+.group {
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.group__title {
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.group__title::marker {
+  color: var(--muted);
+}
+
+.group__note {
+  margin: 0.5rem 0 0.85rem;
+}
+
+.knob {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.15rem 0.5rem;
+  margin-top: 0.7rem;
+}
+
+.knob__label {
+  color: var(--muted);
+}
+
+.knob__value {
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.knob input[type="range"] {
+  grid-column: 1 / -1;
+  width: 100%;
+  height: 1rem;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.knob--dirty .knob__label {
+  color: var(--text);
+}
+
+.swatches {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+}
+
+.swatch {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+}
+
+.swatch input {
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  border: 1px solid var(--line);
+  background: transparent;
+  cursor: pointer;
+}
+
+.panel__foot {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+
+/* Stage
+--------------------------------------------------------- */
+
+.stage {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+}
+
+.stage__frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* Toast
+--------------------------------------------------------- */
+
+.toast {
+  position: fixed;
+  left: calc(var(--panel-width) + 1.25rem);
+  bottom: 1.25rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  background: var(--panel);
+  color: var(--accent);
+  opacity: 0;
+  transform: translateY(0.4rem);
+  transition: opacity 0.2s, transform 0.2s;
+  pointer-events: none;
+}
+
+.toast[data-visible="true"] {
+  opacity: 1;
+  transform: none;
+}

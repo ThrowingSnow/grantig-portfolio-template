@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Lorem Ipsum — 3D Banner, Deform Arrow &amp; Falling Letters</title>
+    <title>Lorem Ipsum — 3D Banner, Falling Letters &amp; a Gravity Well</title>
     <meta
       name="description"
-      content="A one-pager: extruded 3D headline with pointer reaction, a scroll-deformed arrow, text flying in from every side and letters dropping onto a node."
+      content="A one-pager: extruded 3D headline with pointer reaction, a scroll-deformed arrow, text flying in from every side, letters dropping onto a surface that swings open — and a black sphere that catches them and composes the next line."
     />
     <link rel="shortcut icon" href="/vite.svg" />
     <link rel="stylesheet" type="text/css" href="/src/css/scroll.css" />
@@ -19,7 +19,6 @@
   <body class="loading">
     <header class="frame">
       <span class="frame__title">Lorem Ipsum / One&nbsp;Page</span>
-      <span class="frame__meta">three.js · cannon-es · lenis</span>
     </header>
 
     <main class="page">
@@ -55,12 +54,73 @@
         <p class="panel__note">keep scrolling — gravity follows your wheel</p>
       </section>
 
-      <section class="panel" data-panel="outro">
+      <!-- 4. The surface swings open and drops the pile into the void. -->
+      <section class="panel" data-panel="split">
+        <p class="panel__note">the surface gives way</p>
+      </section>
+
+      <!-- 5. The void: a black sphere holds the letters in orbit until it is
+           clicked, then composes the line below on the screen plane. -->
+      <section class="panel" data-panel="orbit">
+        <div class="visually-hidden">
+          <p data-webgl="core">
+            Sed ut perspiciatis unde omnis iste natus error sit voluptatem
+            accusantium doloremque laudantium totam rem aperiam eaque ipsa quae
+          </p>
+        </div>
+        <p class="panel__note">the sphere holds them · click it</p>
+      </section>
+
+      <!-- 6. The arrow comes in from one side and clears the line away. -->
+      <section class="panel" data-panel="sweep">
         <p class="panel__note panel__note--end">
-          the letters rest on the node · scroll back up to reset
+          keep scrolling — the arrow clears the way
         </p>
       </section>
+
+      <!-- 7. The crossing: the ground goes pale and the camera leaves its
+           fixed spot. Short on purpose — it is a cut, not a section. -->
+      <section class="panel" data-panel="flip">
+        <p class="panel__note">something else is down here</p>
+      </section>
+
+      <!-- 8. The second level: the camera rides a curve past a run of words,
+           set in a different typeface and laid out in world space. -->
+      <section class="panel" data-panel="drift">
+        <div class="visually-hidden">
+          <p data-webgl="drift">Adipisci</p>
+          <p data-webgl="drift">Velit</p>
+          <p data-webgl="drift">Numquam</p>
+          <p data-webgl="drift">Eius</p>
+          <p data-webgl="drift">Tempora</p>
+          <p data-webgl="drift">Incidunt</p>
+          <p data-webgl="drift">Magnam</p>
+          <p data-webgl="drift">Aliquam</p>
+        </div>
+      </section>
+
+      <!-- Slack at the end: without it the last panel could never reach the end
+           of its own progress, because the document stops one viewport early. -->
+      <div class="tail" aria-hidden="true"></div>
     </main>
+
+    <button
+      class="sphere"
+      type="button"
+      data-action="collapse"
+      data-ready="false"
+      disabled
+      aria-describedby="sphere-hint"
+    >
+      <span class="visually-hidden"
+        >Collapse the orbiting letters into the sphere</span
+      >
+      <span class="sphere__label" aria-hidden="true" data-text="click">click</span>
+    </button>
+    <p id="sphere-hint" class="visually-hidden">
+      The sphere swallows the letters and composes the next line inside its
+      gravity well.
+    </p>
 
     <aside class="hud" aria-hidden="true">
       <span class="hud__phase" data-hud="phase">banner</span>

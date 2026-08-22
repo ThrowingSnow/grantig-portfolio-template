@@ -3,7 +3,7 @@ import { TessellateModifier } from "three/examples/jsm/Addons.js";
 
 import Commons from "../classes/Commons";
 import { Phases } from "./Director";
-import { COLORS, clamp01, lerp, smoothstep } from "./settings";
+import { COLORS, TUNE, clamp01, lerp, smoothstep } from "./settings";
 
 import fragmentShader from "../../shaders/onepage/arrow.frag";
 import vertexShader from "../../shaders/onepage/arrow.vert";
@@ -18,11 +18,20 @@ interface Layer {
   shift: number;
 }
 
+/** Half the arrow's length, in the units the shape is built at. */
+const ARROW_REACH = 95;
+
+/** How far outside the viewport it starts and ends its run, in pixels. */
+const SWEEP_MARGIN = 520;
+
 /**
  * The scroll arrow in the middle of the page.
  * It borrows the deformation language of the codrops demo: a velocity driven
  * wave distortion plus an RGB split — except here the wave runs through the
  * geometry itself and the split is done with three additive layers.
+ *
+ * It has a second job at the end of the story: once the sphere has left and the
+ * new line stands, the arrow comes in from one side and clears it away again.
  */
 export default class DeformArrow {
   private commons: Commons;
@@ -31,6 +40,14 @@ export default class DeformArrow {
   private group = new THREE.Group();
   private geometry!: THREE.ExtrudeGeometry;
   private layers: Array<Layer> = [];
+
+  /** Scale for the current viewport, before the run makes it bigger. */
+  private baseScale = 1;
+
+  /** +1 travelling right, -1 travelling left. 0 until a run picks a side. */
+  private heading = 0;
+  /** World x of the arrow's tip while it is running. */
+  private tip = 0;
 
   constructor({ scene }: Props) {
     this.commons = Commons.getInstance();
@@ -143,19 +160,42 @@ export default class DeformArrow {
   }
 
   onResize() {
-    const scale = clamp01(window.innerWidth / 1440) * 0.6 + 0.75;
-    this.group.scale.setScalar(scale);
+    this.baseScale = clamp01(window.innerWidth / 1440) * 0.6 + 0.75;
+    this.group.scale.setScalar(this.baseScale);
   }
 
-  update(phases: Phases) {
-    const { hero, hold, charge, assemble, velocity } = phases;
+  /** Which way the current run is going: +1 to the right, -1 to the left. */
+  get direction() {
+    return this.heading;
+  }
+
+  /** Where its point is right now — what the letters are tested against. */
+  get edge() {
+    return this.tip;
+  }
+
+  /**
+   * `armed` is false until the sphere has been clicked: without a line standing
+   * there the run has nothing to clear, and an arrow tearing through an empty
+   * frame reads as a bug rather than as a beat.
+   */
+  update(phases: Phases, armed = false) {
+    const { hero, hold, charge, assemble, sweep, velocity } = phases;
+    const time = this.commons.elapsedTime;
+
+    if (sweep > 0 && armed) {
+      this.run(sweep, velocity, time);
+      return;
+    }
+
+    // Rewound past the run: the next one is free to come from either side.
+    this.heading = 0;
 
     const fade = 1 - smoothstep(0, 0.55, assemble);
     this.group.visible = fade > 0.001;
 
     if (!this.group.visible) return;
 
-    const time = this.commons.elapsedTime;
     const height = window.innerHeight;
 
     // Travels from below the banner to the middle of the screen while the page
@@ -178,6 +218,47 @@ export default class DeformArrow {
       uniforms.uCharge.value = charge;
       uniforms.uOffset.value = shift * (4 + Math.abs(velocity) * 0.45 + charge * 10);
       uniforms.uOpacity.value = (mesh.userData.baseOpacity as number) * fade;
+    });
+  }
+
+  /**
+   * The run through the finished line.
+   *
+   * Position is mapped straight off the scroll rather than played back on a
+   * timer: the arrow is pushed through the text by the wheel, so how hard the
+   * line is hit is the reader's decision. The side it comes in from is drawn
+   * once per run — the same page twice is not the same shot twice.
+   */
+  private run(progress: number, velocity: number, time: number) {
+    if (!this.heading) this.heading = Math.random() < 0.5 ? -1 : 1;
+
+    const scale = this.baseScale * TUNE.sweep.scale;
+    const span = window.innerWidth + SWEEP_MARGIN * 2;
+
+    this.group.visible = true;
+    this.group.scale.setScalar(scale);
+
+    // Pointing the way it travels: the shape is built tip-down, so a quarter
+    // turn in the heading's direction lays it on its side, point first.
+    this.group.rotation.set(0, 0, (this.heading * Math.PI) / 2);
+    this.group.position.set(
+      this.heading * (progress - 0.5) * span,
+      Math.sin(time * 2.1) * 5,
+      140
+    );
+
+    this.tip = this.group.position.x + this.heading * ARROW_REACH * scale;
+
+    this.layers.forEach(({ mesh, shift }) => {
+      const uniforms = mesh.material.uniforms;
+
+      uniforms.uTime.value = time;
+      uniforms.uVelocity.value = velocity;
+      // The fill charges up as it eats its way through the line.
+      uniforms.uCharge.value = progress;
+      uniforms.uOffset.value =
+        shift * (6 + Math.abs(velocity) * 0.45 + progress * 16);
+      uniforms.uOpacity.value = mesh.userData.baseOpacity as number;
     });
   }
 }

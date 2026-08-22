@@ -41,7 +41,8 @@ export default class Commons {
     pixelRatio: this.getPixelRatio(),
   };
 
-  private distanceFromCamera: number = 1000;
+  /** Public because the scene projects world radii back to screen pixels with it. */
+  readonly distanceFromCamera: number = 1000;
 
   /**
    * Function to be called to either create Commons Singleton instance, or to return existing one.

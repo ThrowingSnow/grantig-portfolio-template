@@ -1,6 +1,14 @@
 import Commons from "../classes/Commons";
 
-export type PanelName = "hero" | "hold" | "gravity" | "outro";
+export type PanelName =
+  | "hero"
+  | "hold"
+  | "gravity"
+  | "split"
+  | "orbit"
+  | "sweep"
+  | "flip"
+  | "drift";
 
 interface Panel {
   top: number;
@@ -20,8 +28,18 @@ export interface Phases {
   charge: number;
   /** 0 → 1 while the letters fly in from all sides. */
   assemble: number;
-  /** 0 → 1 while gravity takes over and the letters drop onto the node. */
+  /** 0 → 1 while gravity takes over and the letters drop onto the surface. */
   gravity: number;
+  /** 0 → 1 while the surface swings open in the middle. */
+  split: number;
+  /** 0 → 1 while the letters are captured by the sphere and start orbiting. */
+  orbit: number;
+  /** 0 → 1 while the arrow runs through the finished line and clears it. */
+  sweep: number;
+  /** 0 → 1 across the crossing into the second level: palette and camera. */
+  flip: number;
+  /** 0 → 1 while the camera rides the path through the second level. */
+  drift: number;
 }
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
@@ -53,6 +71,11 @@ export default class Director {
     charge: 0,
     assemble: 0,
     gravity: 0,
+    split: 0,
+    orbit: 0,
+    sweep: 0,
+    flip: 0,
+    drift: 0,
   };
 
   constructor() {
@@ -75,7 +98,8 @@ export default class Director {
     this.panels = this.measure();
   }
 
-  private progress(panel: Panel, scroll: number) {
+  private progress(panel: Panel | undefined, scroll: number) {
+    if (!panel) return 0;
     return clamp01((scroll - panel.top) / Math.max(1, panel.height));
   }
 
@@ -103,6 +127,11 @@ export default class Director {
       (hold - this.chargeThreshold) / (this.assembleEnd - this.chargeThreshold)
     );
     this.phases.gravity = this.progress(this.panels.gravity, scroll);
+    this.phases.split = this.progress(this.panels.split, scroll);
+    this.phases.orbit = this.progress(this.panels.orbit, scroll);
+    this.phases.sweep = this.progress(this.panels.sweep, scroll);
+    this.phases.flip = this.progress(this.panels.flip, scroll);
+    this.phases.drift = this.progress(this.panels.drift, scroll);
 
     return this.phases;
   }

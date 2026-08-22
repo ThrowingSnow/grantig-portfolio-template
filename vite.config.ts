@@ -10,6 +10,9 @@ export default defineConfig({
         // The one-pager, plus the original codrops text demo.
         main: resolve(__dirname, "index.html"),
         original: resolve(__dirname, "original.html"),
+        // The tuning page — runs the one-pager in a frame, ships no scene of
+        // its own. See README, "Tuning".
+        config: resolve(__dirname, "config.html"),
       },
     },
   },
