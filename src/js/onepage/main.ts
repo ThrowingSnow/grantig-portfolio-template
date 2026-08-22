@@ -2,6 +2,7 @@ import * as THREE from "three";
 
 import Commons from "../classes/Commons";
 
+import AnvilText from "./AnvilText";
 import BannerText from "./BannerText";
 import ChargeMeter from "./ChargeMeter";
 import CameraRig from "./CameraRig";
@@ -54,6 +55,8 @@ const readText = (element: Element | null) =>
  *                that line out of the frame.
  * 9. Crossing  — the ground goes pale and the camera leaves its fixed spot.
  * 10. Drift    — it rides a bezier past a run of words in a second typeface.
+ * 11. Anvil    — those same words come down as one block filling the frame and
+ *                knock the arrow out of the bottom of it.
  *
  * Steps 8 to 10 are locked away until the sphere has been clicked: the panels
  * carrying them have no height until then, so the document ends at the sphere
@@ -79,6 +82,7 @@ class OnePage {
   private core!: CoreText;
   private rig!: CameraRig;
   private drift!: DriftText;
+  private anvil!: AnvilText;
   private postFX!: PostFX;
 
   private pointerLight!: THREE.PointLight;
@@ -213,13 +217,23 @@ class OnePage {
     // built last: everything above has already laid itself out by then.
     this.rig = new CameraRig();
 
+    const drift = Array.from(document.querySelectorAll('[data-webgl="drift"]'))
+      .map(readText)
+      .filter(Boolean);
+
     this.drift = new DriftText({
       scene: this.scene,
       typography: this.driftFace,
       rig: this.rig,
-      words: Array.from(document.querySelectorAll('[data-webgl="drift"]'))
-        .map(readText)
-        .filter(Boolean),
+      words: drift,
+    });
+
+    // The same words the ride was read one at a time, set as one block for the
+    // last beat — so it lands as something already known, not as new copy.
+    this.anvil = new AnvilText({
+      scene: this.scene,
+      typography: this.driftFace,
+      words: drift,
     });
   }
 
@@ -353,11 +367,14 @@ class OnePage {
     // so it has to be asked where the lens is *this* frame, not last frame.
     this.rig.update(phases, delta);
     this.drift.update(phases);
+    this.anvil.update(phases);
 
     // And the arrow last of all. From the crossing on it is placed against the
     // camera rather than against the viewport, so it has to be told where the
     // lens ended up this frame — the earlier `update()` hands over to this.
-    this.arrow.escort(phases);
+    // The block goes first as well: what it has already done to the arrow this
+    // frame is what the arrow is placed by.
+    this.arrow.escort(phases, this.anvil);
 
     this.syncTrigger(phases);
 
@@ -427,6 +444,9 @@ class OnePage {
     this.well.onResize();
     this.core.onResize();
     this.drift.onResize();
+    // Nothing about the block depends on the viewport, but its proportions are
+    // a knob, and a structural knob is handed on as a resize.
+    this.anvil.rebuild();
 
     this.syncTriggerSize();
 

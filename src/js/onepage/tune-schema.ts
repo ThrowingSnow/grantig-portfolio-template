@@ -152,6 +152,23 @@ export const TUNE_GROUPS: Array<KnobGroup> = [
     ],
   },
   {
+    title: "The anvil",
+    phase: "drift",
+    note: "The level's words come down as one block at the end of the ride and knock the arrow out of the frame. Jump to drift and scroll to the bottom.",
+    knobs: [
+      { path: "anvil.start", label: "Starts falling at", min: 0.3, max: 0.95, step: 0.01 },
+      { path: "anvil.land", label: "Lands at", min: 0.35, max: 0.99, step: 0.01 },
+      { path: "anvil.still", label: "Arrow settles over", min: 0, max: 0.5, step: 0.01 },
+      { path: "anvil.punt", label: "Knocked out over", min: 0.01, max: 0.3, step: 0.01 },
+      { path: "anvil.fill", label: "Share of the frame", min: 0.3, max: 1.4, step: 0.02 },
+      { path: "anvil.columns", label: "Line width", min: 4, max: 24, step: 0.5, unit: "em", structural: true },
+      { path: "anvil.rest", label: "Comes to rest at", min: -400, max: 400, step: 10, unit: "px" },
+      { path: "anvil.lift", label: "Starts above by", min: 0, max: 900, step: 10, unit: "px" },
+      { path: "anvil.recoil", label: "Rebound", min: 0, max: 200, step: 2, unit: "px" },
+      { path: "anvil.depth", label: "Distance held at", min: 330, max: 1200, step: 10, unit: "px" },
+    ],
+  },
+  {
     title: "The second level",
     phase: "drift",
     note: "The camera ride. Jump to flip or drift — none of it moves before that.",

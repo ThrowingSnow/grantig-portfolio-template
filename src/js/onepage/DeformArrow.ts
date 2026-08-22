@@ -12,6 +12,18 @@ interface Props {
   scene: THREE.Scene;
 }
 
+/**
+ * What the falling block is doing to the arrow this frame. Passed in rather
+ * than imported so the arrow keeps knowing nothing about the block — only that
+ * something is holding it still, and then driving it out.
+ */
+export interface Strike {
+  /** How still it is being held, 0…1. */
+  calm: number;
+  /** How far it has been driven out of the frame, 0…1. */
+  punt: number;
+}
+
 interface Layer {
   mesh: THREE.Mesh<THREE.ExtrudeGeometry, THREE.ShaderMaterial>;
   /** How strongly this layer is pushed aside by the scroll velocity. */
@@ -301,16 +313,34 @@ export default class DeformArrow {
    * scale is divided back out by that distance, so the depth shows up as
    * occlusion only — it does not balloon on the way towards the lens.
    *
+   * And it is where the arrow's story is ended for it. `strike` is the block
+   * coming down at the end of the level: first it takes the swings away, so
+   * the arrow is standing still under it, and then it drives it out of the
+   * bottom of the frame.
+   *
    * Must be called *after* the rig has moved, and takes the camera's matrix
    * into its own hands because nothing has rendered yet this frame.
    */
-  escort(phases: Phases) {
+  escort(phases: Phases, strike: Strike = { calm: 0, punt: 0 }) {
     const { flip, drift, velocity } = phases;
 
     if (flip <= 0) {
       if (this.inverted) this.invert(false);
       return;
     }
+
+    // Out of the frame and gone. Kept before everything else so the last beat
+    // costs nothing once it is over.
+    if (strike.punt >= 1) {
+      this.group.visible = false;
+      return;
+    }
+
+    // How much of the weave is left. The block coming down needs something
+    // standing under it, so the swings are talked down to nothing first and
+    // the arrow waits in the middle for it.
+    const loose = 1 - clamp01(strike.calm);
+    const punt = clamp01(strike.punt);
 
     const { escort } = TUNE;
     const camera = this.commons.camera;
@@ -328,17 +358,23 @@ export default class DeformArrow {
 
     const settled = smoothstep(0, 1, arrival);
 
-    const x = lerp(exitX, swing * escort.swing, settled);
+    const x = lerp(exitX, swing * escort.swing * loose, settled);
+
+    // Squared, so the blow reads as a blow: it is barely moving on the frame
+    // the block lands and off the bottom edge a moment later.
+    const driven = punt * punt * (window.innerHeight + ARROW_REACH * 4);
+
     const y =
-      lerp(0, -escort.drop + Math.sin(angle * 0.5) * escort.bob, settled) -
-      Math.sin(Math.PI * arrival) * escort.arc;
+      lerp(0, -escort.drop + Math.sin(angle * 0.5) * escort.bob * loose, settled) -
+      Math.sin(Math.PI * arrival) * escort.arc -
+      driven;
 
     // Camera space looks down -z, so the distance in front of the lens is the
     // negated depth. A third of a turn out of step with the swing, so it is
     // deepest on the way through the middle rather than at the far ends.
     const distance = lerp(
       escort.entry,
-      escort.depth + Math.sin(angle + Math.PI / 3) * escort.weave,
+      escort.depth + Math.sin(angle + Math.PI / 3) * escort.weave * loose,
       settled
     );
 
@@ -366,9 +402,10 @@ export default class DeformArrow {
     // Square to the lens first, then turned in the lens's own frame: coming out
     // of the run lying on its side and settling to point the way it is going.
     this.group.quaternion.copy(camera.quaternion);
-    this.group.rotateY(Math.sin(angle * 0.75) * escort.spin * settled);
+    this.group.rotateY(Math.sin(angle * 0.75) * escort.spin * settled * loose);
     this.group.rotateZ(
-      lerp((heading * Math.PI) / 2, -swing * escort.bank, settled)
+      lerp((heading * Math.PI) / 2, -swing * escort.bank * loose, settled) -
+        heading * punt * TAU * 0.4
     );
 
     this.group.visible = true;
@@ -391,8 +428,11 @@ export default class DeformArrow {
       uniforms.uTime.value = time;
       uniforms.uVelocity.value = velocity;
       uniforms.uCharge.value = 0.35 + ride * 0.65;
-      uniforms.uOffset.value = shift * (6 + Math.abs(velocity) * 0.45 + ride * 12);
-      uniforms.uOpacity.value = mesh.userData.baseOpacity as number;
+      // The blow tears at it on the way out, whatever the wheel is doing.
+      uniforms.uOffset.value =
+        shift * (6 + Math.abs(velocity) * 0.45 + ride * 12 + punt * 30);
+      uniforms.uOpacity.value =
+        (mesh.userData.baseOpacity as number) * (1 - punt * punt);
     });
   }
 

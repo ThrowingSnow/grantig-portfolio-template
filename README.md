@@ -127,6 +127,20 @@ the copy down there stays readable to screen readers and crawlers throughout.
     as it goes, diving behind one gate and coming back out in front of the next
     without ever leaving the middle of the picture.
 
+11. **The anvil** — the last beat, at the bottom of the same panel. The words
+    the reader has been meeting one at a time come back all at once: set solid,
+    fitted to the frame, dropping in from above it on an accelerating fall and
+    landing with a rebound. The arrow's swings are talked down to nothing on the
+    way in, so it is standing still in the middle when the block arrives — and
+    then it is driven out through the bottom of the frame, tumbling and torn
+    apart by its own RGB split as it goes.
+
+    The page has spent ten panels running an arrow through text. It ends with
+    the text running over the arrow. The block is held against the camera, like
+    the arrow beside it, because by now the rig is somewhere down the far end of
+    the Bézier and something that has to fill the frame has no business being
+    anywhere the lens is not.
+
 **This is where the page's founding convention ends.** Up to the crossing the
 camera sits at z = 1000 with a fov chosen so one world unit is one CSS pixel,
 which is what lets every module above lay itself out in pixels. `CameraRig` is
@@ -239,6 +253,7 @@ src/js/onepage/
   CoreText.ts              where the block the swarm reassembles into sits
   CameraRig.ts             the Bézier the camera rides through the second level
   DriftText.ts             the second level: its face, its palette, its word gates
+  AnvilText.ts             those same words as one block, dropped on the arrow
   Pointer.ts               pointer tracking
   PostFX.ts                wave + RGB shift + lens + tear + vignette pass
   tune-schema.ts           which settings the config page offers, and how

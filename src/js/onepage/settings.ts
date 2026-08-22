@@ -186,6 +186,38 @@ export const TUNE = {
   },
 
   /**
+   * The last beat: the level's words come down as one block and drive the
+   * arrow out of the frame.
+   *
+   * The timings are shares of the second level's own panel, so they read as
+   * places on the ride rather than as seconds — nothing on this page is played
+   * back on a clock. Like the escort, the distances are pixels at the camera's
+   * own distance: the block is held against the lens, not stood in the world.
+   */
+  anvil: {
+    /** Where on the ride the block starts coming down, 0…1 of the level. */
+    start: 0.72,
+    /** Where it lands — the strike. */
+    land: 0.88,
+    /** How long before the drop the arrow is brought to a standstill for it. */
+    still: 0.14,
+    /** How much of the ride the arrow takes to be driven out after the strike. */
+    punt: 0.06,
+    /** Share of the frame the block is fitted to, 0…1. */
+    fill: 0.92,
+    /** How wide a line of it may get, in ems — really the block's proportions. */
+    columns: 10,
+    /** Where it comes to rest relative to the middle; positive is above it. */
+    rest: 0,
+    /** Extra height it starts above the frame, in pixels. */
+    lift: 220,
+    /** How far it springs back after the strike, in pixels. */
+    recoil: 46,
+    /** How far in front of the lens it is held, in pixels. */
+    depth: 420,
+  },
+
+  /**
    * The second level: the camera comes off its fixed spot and rides a Bézier
    * through a run of word gates. This is the one place where a world unit is no
    * longer a CSS pixel, so everything here is in path units, not in pixels.
