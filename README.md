@@ -187,8 +187,14 @@ the jump buttons are the only sane way to tune them.
 - **The copy** has its own group there. Each block may run 20% either side of
   the length it ships with — every character is a mesh, and a falling one is a
   physics body too, so the budget is a real limit rather than a style rule.
-  **Copy as HTML** gives the markup back for `index.html`; applying reloads the
-  frame, because the text is read once while the scene is built.
+  **Save to index.html** writes the text straight into the file — the config
+  page posts it to a dev-server route in `src/dev/copy-writer.ts`, which swaps
+  the text between the `data-webgl` tags and leaves the rest of the markup, the
+  comments included, alone. It only exists while `npm run dev` is running:
+  the plugin is registered `apply: "serve"`, so it is never part of a build.
+  **Copy as HTML** gives the same markup back on the clipboard instead, for
+  when the page is not being served from its own source. Applying reloads the
+  frame either way, because the text is read once while the scene is built.
 - Adding a knob means adding one entry to `src/js/onepage/tune-schema.ts`; the
   panel builds itself from that list.
 
@@ -205,6 +211,7 @@ original.html              the original codrops demo
 src/css/onepage.css        layout, frame, HUD, scroll section heights
 src/css/config.css         the tuning page
 src/js/config.ts           the tuning page's panel
+src/dev/copy-writer.ts     dev-only route that saves the copy into index.html
 src/js/onepage/
   main.ts                  entry point: scene, lights, frame loop
   Director.ts              turns scroll into named phases

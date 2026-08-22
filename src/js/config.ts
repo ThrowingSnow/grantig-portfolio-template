@@ -1,3 +1,4 @@
+import { COPY_ROUTE } from "../dev/copy-route";
 import { TUNE_COLORS, TUNE_GROUPS, type Knob } from "./onepage/tune-schema";
 import {
   COPY_KEY,
@@ -437,6 +438,37 @@ function buildCopy() {
     note("Copy applied — the frame is rebuilding");
   });
 
+  const store = document.createElement("button");
+  store.type = "button";
+  store.textContent = "Save to index.html";
+  store.addEventListener("click", async () => {
+    store.disabled = true;
+    note("Saving…");
+
+    try {
+      const response = await fetch(COPY_ROUTE, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(value),
+      });
+
+      const result = (await response.json()) as { error?: string; file?: string };
+      if (!response.ok) throw new Error(result.error ?? `HTTP ${response.status}`);
+
+      // The stored copy would shadow what was just written, and the panel
+      // measures its budget against the file — so both start over from it.
+      window.localStorage.removeItem(COPY_KEY);
+      draft = null;
+      reloadFrame();
+
+      note(`Saved to ${result.file ?? "index.html"}`);
+    } catch (error) {
+      note(`Could not save — ${(error as Error).message}`);
+    } finally {
+      store.disabled = false;
+    }
+  });
+
   const markup = document.createElement("button");
   markup.type = "button";
   markup.textContent = "Copy as HTML";
@@ -452,7 +484,7 @@ function buildCopy() {
     }
   });
 
-  actions.append(apply, markup);
+  actions.append(apply, store, markup);
   box.append(actions);
 
   sync();

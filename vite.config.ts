@@ -3,6 +3,8 @@ import { resolve } from "node:path";
 import { defineConfig } from "vite";
 import glsl from "vite-plugin-glsl";
 
+import copyWriter from "./src/dev/copy-writer";
+
 export default defineConfig({
   build: {
     rollupOptions: {
@@ -36,6 +38,8 @@ export default defineConfig({
       // Recompile shader on change
       root: "/",
     }),
+    // Lets the config page save its copy into index.html. Dev only.
+    copyWriter(),
   ],
   // config options
 });
