@@ -115,6 +115,27 @@ canvas {
   height: var(--panel-tail);
 }
 
+/* Locked: everything past the sphere is not part of the document yet.
+   The panels keep their markup — screen readers and crawlers still get the copy
+   — but they carry no height, so the wheel stops at the sphere. The tail is cut
+   back to exactly one viewport at the same time: that puts the bottom of the
+   locked document on the first pixel of the sweep panel, so unlocking adds
+   height below the reader instead of dropping them into a phase already in
+   progress. */
+.page[data-locked="true"] {
+  --panel-sweep: 0;
+  --panel-flip: 0;
+  --panel-drift: 0;
+  --panel-tail: 100vh;
+}
+
+.page[data-locked="true"] .panel[data-panel="sweep"],
+.page[data-locked="true"] .panel[data-panel="flip"],
+.page[data-locked="true"] .panel[data-panel="drift"] {
+  padding: 0;
+  overflow: hidden;
+}
+
 .panel__hint,
 .panel__note {
   margin: 0;

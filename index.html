@@ -21,7 +21,10 @@
       <span class="frame__title">Lorem Ipsum / One&nbsp;Page</span>
     </header>
 
-    <main class="page">
+    <!-- `data-locked` is the second half of the page: the panels below the
+         sphere carry no scroll height until it has been clicked. The markup
+         is always there, so the copy stays readable without JavaScript. -->
+    <main class="page" data-locked="true">
       <!-- 1. Banner: five words, extruded in 3D, reacting to the pointer. -->
       <section class="panel" data-panel="hero">
         <h1 class="visually-hidden" data-webgl="banner">

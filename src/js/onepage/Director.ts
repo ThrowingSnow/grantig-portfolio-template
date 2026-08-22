@@ -99,8 +99,11 @@ export default class Director {
   }
 
   private progress(panel: Panel | undefined, scroll: number) {
-    if (!panel) return 0;
-    return clamp01((scroll - panel.top) / Math.max(1, panel.height));
+    // A panel collapsed to nothing is locked away, not finished: without this
+    // its zero height would read as "scrolled clean past" the moment the reader
+    // reaches the panel above it.
+    if (!panel || panel.height <= 0) return 0;
+    return clamp01((scroll - panel.top) / panel.height);
   }
 
   update() {

@@ -82,6 +82,15 @@ the headline reacts to the pointer.
    being towed — it simply arrives with the rest — so the copy stays swappable,
    see [Editing the page](#editing-the-page).
 
+**The sphere is a gate, not an ornament.** Steps 8 to 10 hang off
+`data-locked` on `.page`: until the click their panels have no height, so the
+document ends at the sphere and the wheel has nowhere left to go. The tail is cut
+to exactly one viewport at the same time, which puts the last scrollable pixel on
+the first pixel of the sweep panel — unlocking adds height below the reader, and
+nothing they can see moves. Scrolling back out of the fall locks it again, so the
+sphere can hold the next pass too. The markup is never removed, only flattened:
+the copy down there stays readable to screen readers and crawlers throughout.
+
 8. **Sweep** — scrolling on brings the arrow back. It comes in from the left or
    the right — drawn fresh every run, so the same page twice is not the same
    shot twice — lays itself on its side and drives through the block. Its
@@ -148,7 +157,11 @@ smaller type.
 **The timing** is defined by the section heights in `src/css/onepage.css` — the
 `--panel-*` custom properties. `Director.ts` reads the panels' offsets from the
 DOM, so lengthening a section in CSS re-times that part of the story, no
-JavaScript involved.
+JavaScript involved. The locked half is the same mechanism seen from the other
+side: `.page[data-locked="true"]` sets `--panel-sweep`, `--panel-flip` and
+`--panel-drift` to zero and shortens `--panel-tail` to one viewport. A panel of
+zero height reports a progress of 0, not 1 — otherwise reaching the sphere would
+read as having scrolled clean past everything below it.
 
 **Colors, the 75% content width, the height of the surface, the radius of the
 sphere, how far the gate swings open and the tuning of the gravity well** live in

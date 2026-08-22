@@ -24,6 +24,9 @@ import { embedded, install, restore, restoreCopy } from "./tuning";
  * The copy lives in the DOM (visually hidden) so the page stays readable for
  * screen readers and crawlers — WebGL only draws what is written there.
  */
+/** The panels that only exist once the sphere has been clicked. */
+const LOCKED = ["sweep", "flip", "drift"];
+
 const readText = (element: Element | null) =>
   (element?.textContent ?? "").replace(/\s+/g, " ").trim().toUpperCase();
 
@@ -47,8 +50,14 @@ const readText = (element: Element | null) =>
  *                has no use for; the letters that are needed are set down as
  *                that line, which straightens out as the mass disappears.
  *
- * The next mechanism goes below the orbit panel — since that panel currently ends
- * the document, the sphere state needs no scroll pinning yet.
+ * 8. Sweep    — the arrow comes back in from a side drawn at random and knocks
+ *                that line out of the frame.
+ * 9. Crossing  — the ground goes pale and the camera leaves its fixed spot.
+ * 10. Drift    — it rides a bezier past a run of words in a second typeface.
+ *
+ * Steps 8 to 10 are locked away until the sphere has been clicked: the panels
+ * carrying them have no height until then, so the document ends at the sphere
+ * and the wheel cannot get past it.
  */
 class OnePage {
   private commons!: Commons;
@@ -80,6 +89,9 @@ class OnePage {
   private trigger: HTMLButtonElement | null = null;
   private hovered = false;
   private collapsed = false;
+
+  /** Carries `data-locked` — the second half of the page hangs off it. */
+  private page: HTMLElement | null = null;
 
   constructor() {
     document.addEventListener("DOMContentLoaded", () => this.init());
@@ -161,6 +173,8 @@ class OnePage {
     ).map(readText);
     const core = readText(document.querySelector('[data-webgl="core"]'));
 
+    this.page = document.querySelector<HTMLElement>(".page");
+
     this.pointer = new Pointer();
     this.director = new Director();
 
@@ -240,6 +254,11 @@ class OnePage {
 
     this.collapsed = true;
 
+    // The rest of the page exists from here on. It is added below the reader,
+    // never around them: the locked document ends exactly where the sweep panel
+    // starts, so nothing they can see moves.
+    this.setLocked(false);
+
     this.well.depart();
     this.letters.disperse(this.core);
     this.postFX.glitch();
@@ -251,6 +270,22 @@ class OnePage {
       600
     );
   };
+
+  /**
+   * Adds or removes the panels below the sphere. Both lenis and the director
+   * hold a measurement of the document, and the document just changed length,
+   * so both have to be told — otherwise the page can be scrolled into a region
+   * one of them still thinks is somewhere else.
+   */
+  private setLocked(locked: boolean) {
+    if (!this.page) return;
+    if ((this.page.dataset.locked === "true") === locked) return;
+
+    this.page.dataset.locked = String(locked);
+
+    this.commons.lenis.resize();
+    this.director.onResize();
+  }
 
   /** Arms the button once the swarm is actually in orbit around the sphere. */
   private syncTrigger(phases: Phases) {
@@ -287,8 +322,13 @@ class OnePage {
     const phases = this.director.update();
 
     // Scrolled all the way back out of the fall: the void is rolled up with it.
-    // The swarm and the sphere both put themselves back on their own.
-    if (phases.gravity <= 0 && this.collapsed) this.collapsed = false;
+    // The swarm and the sphere both put themselves back on their own, and the
+    // second half is locked away again — the sphere is waiting to be clicked a
+    // second time, so it has to be able to hold the reader a second time.
+    if (phases.gravity <= 0 && this.collapsed) {
+      this.collapsed = false;
+      this.setLocked(true);
+    }
 
     this.banner.update(this.pointer, phases.hero);
     this.arrow.update(phases, this.collapsed);
@@ -360,6 +400,10 @@ class OnePage {
     );
 
     if (!element) return;
+
+    // The tuning page has to be able to look at the second level without
+    // playing the whole story to get there.
+    if (LOCKED.includes(panel)) this.setLocked(false);
 
     this.commons.lenis.scrollTo(element.offsetTop + element.offsetHeight * offset, {
       immediate: true,
