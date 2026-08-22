@@ -24,6 +24,14 @@ const ARROW_REACH = 95;
 /** How far outside the viewport it starts and ends its run, in pixels. */
 const SWEEP_MARGIN = 520;
 
+/** The core layer's colour above the crossing, where the ground is black. */
+const CORE_LIGHT = new THREE.Color("#f4f1e8");
+
+const TAU = Math.PI * 2;
+
+/** How far the weave is kept off the camera's clipping planes, in pixels. */
+const CLIP_MARGIN = 120;
+
 /**
  * The scroll arrow in the middle of the page.
  * It borrows the deformation language of the codrops demo: a velocity driven
@@ -32,6 +40,10 @@ const SWEEP_MARGIN = 520;
  *
  * It has a second job at the end of the story: once the sphere has left and the
  * new line stands, the arrow comes in from one side and clears it away again.
+ *
+ * And a third. After that run it curves back into the middle of the frame and
+ * stays there for the whole second level — see `escort()`, which is where the
+ * page turns itself inside out and starts moving the world instead.
  */
 export default class DeformArrow {
   private commons: Commons;
@@ -48,6 +60,12 @@ export default class DeformArrow {
   private heading = 0;
   /** World x of the arrow's tip while it is running. */
   private tip = 0;
+
+  /** True while it is dressed for the pale ground of the second level. */
+  private inverted = false;
+
+  /** Reused for the camera-space placement, so the escort allocates nothing. */
+  private local = new THREE.Vector3();
 
   constructor({ scene }: Props) {
     this.commons = Commons.getInstance();
@@ -130,7 +148,7 @@ export default class DeformArrow {
       [
         { color: COLORS.accent, shift: -1, opacity: 0.55 },
         { color: COLORS.cold, shift: 1, opacity: 0.55 },
-        { color: new THREE.Color("#f4f1e8"), shift: 0, opacity: 1 },
+        { color: CORE_LIGHT, shift: 0, opacity: 1 },
       ];
 
     layers.forEach(({ color, shift, opacity }) => {
@@ -180,8 +198,13 @@ export default class DeformArrow {
    * frame reads as a bug rather than as a beat.
    */
   update(phases: Phases, armed = false) {
-    const { hero, hold, charge, assemble, sweep, velocity } = phases;
+    const { hero, hold, charge, assemble, sweep, flip, velocity } = phases;
     const time = this.commons.elapsedTime;
+
+    // Past the crossing the arrow is placed against the camera instead of
+    // against the viewport, and that cannot be done until the rig has moved
+    // this frame — so `escort()` takes over and this leaves the group alone.
+    if (flip > 0) return;
 
     if (sweep > 0 && armed) {
       this.run(sweep, velocity, time);
@@ -259,6 +282,145 @@ export default class DeformArrow {
       uniforms.uOffset.value =
         shift * (6 + Math.abs(velocity) * 0.45 + progress * 16);
       uniforms.uOpacity.value = mesh.userData.baseOpacity as number;
+    });
+  }
+
+  /**
+   * The second level: the arrow stops travelling and the world starts.
+   *
+   * Everything above this point moves the arrow across a frame that stands
+   * still. Here that is turned around — the arrow is pinned in front of the
+   * lens and the camera's ride carries the level past it. It is the same object
+   * doing the same thing either way; what changes is which of the two the
+   * reader reads as moving, and that is the whole point of the crossing.
+   *
+   * The swing in `z` is what makes it play with the words rather than hang in
+   * front of them: the gates stand off to the side of the path, so an arrow
+   * whose distance from the lens crosses theirs dives behind one and comes back
+   * out in front of the next without ever leaving the middle of the frame. Its
+   * scale is divided back out by that distance, so the depth shows up as
+   * occlusion only — it does not balloon on the way towards the lens.
+   *
+   * Must be called *after* the rig has moved, and takes the camera's matrix
+   * into its own hands because nothing has rendered yet this frame.
+   */
+  escort(phases: Phases) {
+    const { flip, drift, velocity } = phases;
+
+    if (flip <= 0) {
+      if (this.inverted) this.invert(false);
+      return;
+    }
+
+    const { escort } = TUNE;
+    const camera = this.commons.camera;
+    const time = this.commons.elapsedTime;
+
+    const arrival = clamp01(flip);
+    const ride = clamp01(drift);
+
+    // Where the run left it: off the side of the frame, lying point-first.
+    const heading = this.heading || 1;
+    const exitX = heading * (window.innerWidth / 2 + SWEEP_MARGIN);
+
+    const angle = ride * TAU * escort.rate;
+    const swing = Math.sin(angle);
+
+    const settled = smoothstep(0, 1, arrival);
+
+    const x = lerp(exitX, swing * escort.swing, settled);
+    const y =
+      lerp(0, -escort.drop + Math.sin(angle * 0.5) * escort.bob, settled) -
+      Math.sin(Math.PI * arrival) * escort.arc;
+
+    // Camera space looks down -z, so the distance in front of the lens is the
+    // negated depth. A third of a turn out of step with the swing, so it is
+    // deepest on the way through the middle rather than at the far ends.
+    const distance = lerp(
+      escort.entry,
+      escort.depth + Math.sin(angle + Math.PI / 3) * escort.weave,
+      settled
+    );
+
+    // Kept clear of the clipping planes: the weave is a slider, and a distance
+    // short of `near` does not put the arrow close, it deletes it.
+    const held = Math.min(
+      Math.max(distance, camera.near + CLIP_MARGIN),
+      camera.far - CLIP_MARGIN
+    );
+
+    /**
+     * How much the lens magnifies at that distance. Everything about the arrow
+     * is written in the page's pixels and then multiplied back out by this —
+     * position as much as size, because perspective moves an offset as surely
+     * as it grows a shape. Without it on the offsets the arrow leaves the frame
+     * sideways every time the weave brings it close, which is exactly when it
+     * is supposed to be filling the middle of it.
+     */
+    const perspective = held / this.commons.distanceFromCamera;
+
+    this.local.set(x * perspective, y * perspective, -held);
+    camera.updateMatrixWorld();
+    this.group.position.copy(camera.localToWorld(this.local));
+
+    // Square to the lens first, then turned in the lens's own frame: coming out
+    // of the run lying on its side and settling to point the way it is going.
+    this.group.quaternion.copy(camera.quaternion);
+    this.group.rotateY(Math.sin(angle * 0.75) * escort.spin * settled);
+    this.group.rotateZ(
+      lerp((heading * Math.PI) / 2, -swing * escort.bank, settled)
+    );
+
+    this.group.visible = true;
+    this.group.scale.setScalar(this.baseScale * escort.scale * perspective);
+
+    // The ground goes pale under it during the crossing, and a near white arrow
+    // on a near white ground is no arrow at all. The blending has to be thrown
+    // at a point — a switch, not a dial — but the core's colour is a colour, so
+    // it travels with the ground rather than popping halfway across.
+    const inverted = arrival > 0.5;
+    if (inverted !== this.inverted) this.invert(inverted);
+
+    this.layers.forEach(({ mesh, shift }) => {
+      const uniforms = mesh.material.uniforms;
+
+      if (shift === 0) {
+        uniforms.uColor.value.copy(CORE_LIGHT).lerp(COLORS.driftInk, settled);
+      }
+
+      uniforms.uTime.value = time;
+      uniforms.uVelocity.value = velocity;
+      uniforms.uCharge.value = 0.35 + ride * 0.65;
+      uniforms.uOffset.value = shift * (6 + Math.abs(velocity) * 0.45 + ride * 12);
+      uniforms.uOpacity.value = mesh.userData.baseOpacity as number;
+    });
+  }
+
+  /**
+   * Dresses the arrow for the level it is standing in.
+   *
+   * The fringes are additive above the crossing, which is what makes them glow
+   * against the black. Additive light on a pale ground adds nothing, so below it
+   * they are blended normally instead. Thrown once on the crossing rather than
+   * per frame, because `needsUpdate` recompiles the material.
+   *
+   * The core's colour is set here too, but only as the restore: on the way down
+   * `escort()` lerps it every frame, and this is what puts it back for the run
+   * through the line if the reader scrolls up out of the second level again.
+   */
+  private invert(on: boolean) {
+    this.inverted = on;
+
+    this.layers.forEach(({ mesh, shift }) => {
+      const material = mesh.material;
+
+      if (shift === 0) {
+        material.uniforms.uColor.value.copy(on ? COLORS.driftInk : CORE_LIGHT);
+        return;
+      }
+
+      material.blending = on ? THREE.NormalBlending : THREE.AdditiveBlending;
+      material.needsUpdate = true;
     });
   }
 }

@@ -354,6 +354,11 @@ class OnePage {
     this.rig.update(phases, delta);
     this.drift.update(phases);
 
+    // And the arrow last of all. From the crossing on it is placed against the
+    // camera rather than against the viewport, so it has to be told where the
+    // lens ended up this frame — the earlier `update()` hands over to this.
+    this.arrow.escort(phases);
+
     this.syncTrigger(phases);
 
     this.pointerLight.position.x = this.pointer.smooth.x;

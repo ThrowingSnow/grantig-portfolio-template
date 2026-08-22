@@ -145,6 +145,47 @@ export const TUNE = {
   },
 
   /**
+   * The arrow's second life, after the run through the line is over.
+   *
+   * It curves back to the middle of the frame and stays there: from the
+   * crossing on, the arrow is the one thing that does not move. It is held in
+   * front of the lens and the world is flown past it, which is the inverse of
+   * everything above — up there the arrow travelled and the frame stood still.
+   *
+   * Distances are in pixels at the camera's own distance, not in path units:
+   * the arrow is placed in the camera's own space, so the page's pixel
+   * convention still holds for it after it has stopped holding for the level.
+   */
+  escort: {
+    /** How much bigger than its resting size it is held. */
+    scale: 1.15,
+    /** How far it swings either side of the middle, in pixels. */
+    swing: 300,
+    /** Where it rides relative to the middle — positive is below it. */
+    drop: 60,
+    /** How far it rides up and down over a swing, in pixels. */
+    bob: 90,
+    /** How far in front of the lens it is held, in pixels. */
+    depth: 760,
+    /**
+     * How far that distance swings. This is the whole trick of the level: the
+     * words stand off the path, so an arrow whose depth crosses theirs passes
+     * behind one and in front of the next without ever leaving the middle.
+     */
+    weave: 420,
+    /** Swings over the whole level. */
+    rate: 3.5,
+    /** How hard it banks into a swing, in radians. */
+    bank: 0.9,
+    /** How far it tumbles around its own long axis, in radians. */
+    spin: 1.2,
+    /** How deep the curve back to the middle dips on its way, in pixels. */
+    arc: 260,
+    /** The distance it comes back in at, before it settles at `depth`. */
+    entry: 900,
+  },
+
+  /**
    * The second level: the camera comes off its fixed spot and rides a Bézier
    * through a run of word gates. This is the one place where a world unit is no
    * longer a CSS pixel, so everything here is in path units, not in pixels.

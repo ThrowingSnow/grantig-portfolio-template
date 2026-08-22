@@ -108,11 +108,24 @@ the copy down there stays readable to screen readers and crawlers throughout.
    first level owns is dismissed here whether it was ever used or not — a reader
    who never clicks the sphere must not drag it into what follows.
 
+   The arrow is the exception: instead of leaving with the rest it curves back
+   out of its run into the middle of the frame, swings down to point the way the
+   reader is going, and stays. Its core travels from pale to the level's ink on
+   the way, because a near-white arrow on a near-white ground is no arrow.
+
 10. **Drift** — the second level. The camera rides a path of three cubic Béziers
     past a run of word gates, set in a different typeface (Gentilis, against the
     Helvetiker everything above uses) and laid out in world space rather than in
     screen pixels. The horizon rolls into the turns; a wave runs through the
     letters, driven by scroll velocity like everything else on the page.
+
+    And the arrow is still there, held in front of the lens while the level is
+    flown past it. That is the inversion the whole crossing was for: above it
+    the arrow travelled across a frame that stood still, here the frame stands
+    on the arrow and the world does the moving. It swings, banks into its swings
+    and — because the words stand off to the side of the path — weaves in depth
+    as it goes, diving behind one gate and coming back out in front of the next
+    without ever leaving the middle of the picture.
 
 **This is where the page's founding convention ends.** Up to the crossing the
 camera sits at z = 1000 with a fov chosen so one world unit is one CSS pixel,
@@ -217,7 +230,7 @@ src/js/onepage/
   Director.ts              turns scroll into named phases
   Typography.ts            font loading, glyph geometry cache, text layout
   BannerText.ts            the 3D headline and its pointer reaction
-  DeformArrow.ts           the deforming arrow, and its run through the line
+  DeformArrow.ts           the deforming arrow: the run, and the escort below
   ChargeMeter.ts           the value that has to be reached
   LetterField.ts           fly-in, physics, the pile, the orbit, the handover, the clearing
   SurfaceGate.ts           the surface the letters land on, and its two wings
