@@ -28,6 +28,7 @@
   --panel-sweep: 120vh;
   --panel-flip: 75vh;
   --panel-drift: 420vh;
+  --panel-strip: 260vh;
   --panel-tail: 140vh;
 }
 
@@ -111,6 +112,10 @@ canvas {
   height: var(--panel-drift);
 }
 
+.panel[data-panel="strip"] {
+  height: var(--panel-strip);
+}
+
 .tail {
   height: var(--panel-tail);
 }
@@ -126,12 +131,14 @@ canvas {
   --panel-sweep: 0;
   --panel-flip: 0;
   --panel-drift: 0;
+  --panel-strip: 0;
   --panel-tail: 100vh;
 }
 
 .page[data-locked="true"] .panel[data-panel="sweep"],
 .page[data-locked="true"] .panel[data-panel="flip"],
-.page[data-locked="true"] .panel[data-panel="drift"] {
+.page[data-locked="true"] .panel[data-panel="drift"],
+.page[data-locked="true"] .panel[data-panel="strip"] {
   padding: 0;
   overflow: hidden;
 }

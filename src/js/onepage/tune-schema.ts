@@ -169,6 +169,22 @@ export const TUNE_GROUPS: Array<KnobGroup> = [
     ],
   },
   {
+    title: "The strip",
+    phase: "strip",
+    note: "One threshold per line, in an order drawn at random when the block is built. Jump to strip and scroll through it — the bands are what the lines leave behind.",
+    knobs: [
+      { path: "strip.lead", label: "First line goes at", min: 0, max: 0.5, step: 0.01 },
+      { path: "strip.tail", label: "Left over at the end", min: 0, max: 0.5, step: 0.01 },
+      { path: "strip.travel", label: "A line takes", min: 0.05, max: 0.8, step: 0.01 },
+      { path: "strip.push", label: "Driven past the edge", min: 1, max: 3, step: 0.05 },
+      { path: "strip.wind", label: "Wind-up", min: 0, max: 200, step: 2, unit: "px" },
+      { path: "strip.spin", label: "Turn on the way out", min: 0, max: 1.5, step: 0.02 },
+      { path: "strip.drag", label: "Band lags behind", min: 0, max: 1, step: 0.01 },
+      { path: "strip.band", label: "Band height", min: 0.2, max: 3, step: 0.05, unit: "×" },
+      { path: "strip.behind", label: "Bands held behind by", min: 20, max: 600, step: 10, unit: "px" },
+    ],
+  },
+  {
     title: "The second level",
     phase: "drift",
     note: "The camera ride. Jump to flip or drift — none of it moves before that.",

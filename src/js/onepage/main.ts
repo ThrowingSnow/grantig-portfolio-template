@@ -13,6 +13,7 @@ import DriftText from "./DriftText";
 import GravityGrid from "./GravityGrid";
 import GravityWell from "./GravityWell";
 import LetterField from "./LetterField";
+import NegativeBands from "./NegativeBands";
 import Pointer from "./Pointer";
 import PostFX from "./PostFX";
 import SurfaceGate from "./SurfaceGate";
@@ -26,7 +27,7 @@ import { embedded, install, restore, restoreCopy } from "./tuning";
  * screen readers and crawlers — WebGL only draws what is written there.
  */
 /** The panels that only exist once the sphere has been clicked. */
-const LOCKED = ["sweep", "flip", "drift"];
+const LOCKED = ["sweep", "flip", "drift", "strip"];
 
 const readText = (element: Element | null) =>
   (element?.textContent ?? "").replace(/\s+/g, " ").trim().toUpperCase();
@@ -57,6 +58,11 @@ const readText = (element: Element | null) =>
  * 10. Drift    — it rides a bezier past a run of words in a second typeface.
  * 11. Anvil    — those same words come down as one block filling the frame and
  *                knock the arrow out of the bottom of it.
+ * 12. Strip    — that block is taken apart again, one line per scroll
+ *                threshold and in an order drawn at random. Every line that is
+ *                shoved out of the frame drags the negative of the ground in
+ *                behind it, in its own letters' height, so the page ends on the
+ *                black and white stack of bands its lines cut out of the level.
  *
  * Steps 8 to 10 are locked away until the sphere has been clicked: the panels
  * carrying them have no height until then, so the document ends at the sphere
@@ -83,6 +89,7 @@ class OnePage {
   private rig!: CameraRig;
   private drift!: DriftText;
   private anvil!: AnvilText;
+  private bands!: NegativeBands;
   private postFX!: PostFX;
 
   private pointerLight!: THREE.PointLight;
@@ -93,6 +100,9 @@ class OnePage {
   private trigger: HTMLButtonElement | null = null;
   private hovered = false;
   private collapsed = false;
+
+  /** Lines the last panel has already shoved out — a rise in it kicks the frame. */
+  private struck = 0;
 
   /** Carries `data-locked` — the second half of the page hangs off it. */
   private page: HTMLElement | null = null;
@@ -235,6 +245,10 @@ class OnePage {
       typography: this.driftFace,
       words: drift,
     });
+
+    // Draws what the block leaves behind, so it is only ever asked after the
+    // block has worked out where its lines are this frame.
+    this.bands = new NegativeBands({ scene: this.scene });
   }
 
   /**
@@ -368,6 +382,14 @@ class OnePage {
     this.rig.update(phases, delta);
     this.drift.update(phases);
     this.anvil.update(phases);
+    this.bands.update(this.anvil.strips);
+
+    // Every threshold of the last panel tears the frame the way the click did,
+    // at a fraction of it: the line is shoved, and the frame is shoved with it.
+    // Only on the way forward — scrolling back re-seats the lines rather than
+    // firing them again, so the count falling is not an event.
+    if (this.anvil.struck > this.struck) this.postFX.glitch(0.45);
+    this.struck = this.anvil.struck;
 
     // And the arrow last of all. From the crossing on it is placed against the
     // camera rather than against the viewport, so it has to be told where the
@@ -381,7 +403,9 @@ class OnePage {
     this.pointerLight.position.x = this.pointer.smooth.x;
     this.pointerLight.position.y = this.pointer.smooth.y;
 
-    if (phases.drift > 0) {
+    if (phases.strip > 0) {
+      this.updateHud("strip", phases.strip);
+    } else if (phases.drift > 0) {
       this.updateHud("drift", phases.drift);
     } else if (phases.flip > 0) {
       this.updateHud("flip", phases.flip);

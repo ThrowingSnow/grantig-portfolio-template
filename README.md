@@ -6,7 +6,9 @@ letters that get handed over to a physics engine and pile up on a surface — an
 surface that swings open in the middle to drop them into a gravity well, where a
 black sphere catches them, and a click sends it out of the scene — towing the
 whole swarm into the depth with it, before the next block of copy pops back out
-of that same depth, spelled with the same letters.
+of that same depth, spelled with the same letters. Past that, a second level
+the camera rides through, ending on a block of text that comes apart one line
+per scroll threshold and leaves the negative of the ground behind it.
 
 Built on top of the [codrops WebGL text demo](#original-demo) — three.js, lenis
 and a velocity-driven post-processing pass — extended with `cannon-es` for the
@@ -82,7 +84,7 @@ the headline reacts to the pointer.
    being towed — it simply arrives with the rest — so the copy stays swappable,
    see [Editing the page](#editing-the-page).
 
-**The sphere is a gate, not an ornament.** Steps 8 to 10 hang off
+**The sphere is a gate, not an ornament.** Steps 8 to 12 hang off
 `data-locked` on `.page`: until the click their panels have no height, so the
 document ends at the sphere and the wheel has nowhere left to go. The tail is cut
 to exactly one viewport at the same time, which puts the last scrollable pixel on
@@ -140,6 +142,31 @@ the copy down there stays readable to screen readers and crawlers throughout.
     the arrow beside it, because by now the rig is somewhere down the far end of
     the Bézier and something that has to fill the frame has no business being
     anywhere the lens is not.
+
+12. **Strip** — a panel of its own, and the only one on the page whose beats are
+    thresholds rather than a run. The block that just landed is taken apart line
+    by line: every line has one place on the scroll where it goes, and crossing
+    it shoves that line out of the frame — sideways, turning, out of the side it
+    was dealt. It winds up against the way out first, so it reads as pushed
+    rather than as sliding, and the frame tears the way it did at the click, at
+    a fraction of it. The order is drawn at random when the block is built, so
+    the same words twice do not come apart the same way twice.
+
+    What each line drags in behind it is the negative of the ground it was
+    standing on, in exactly its own letters' height — read off the scene's clear
+    colour each frame and inverted in sRGB, not in the linear space three keeps
+    its working values in, or the pale level's ground would come back as a mid
+    navy instead of as the black the page opened on. The band is on the same
+    slot as the line, on a slower curve, so it is always trailing whatever is
+    pulling it and catches up exactly as that line clears the frame. It is held
+    a step behind the block, so what flips is the ground and nothing else: the
+    lines still standing keep their ink, on the pale they always had.
+
+    Nothing here is fired and forgotten either — a line's place is a function of
+    where the scroll is, so scrolling back up pulls the block, and the ground
+    under it, straight back together. By the last threshold the level is gone
+    and what is left is the stack of bands its lines cut out of it: the page
+    ends on black and white, which is where it started.
 
 **This is where the page's founding convention ends.** Up to the crossing the
 camera sits at z = 1000 with a fov chosen so one world unit is one CSS pixel,

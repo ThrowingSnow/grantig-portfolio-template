@@ -8,7 +8,8 @@ export type PanelName =
   | "orbit"
   | "sweep"
   | "flip"
-  | "drift";
+  | "drift"
+  | "strip";
 
 interface Panel {
   top: number;
@@ -40,6 +41,8 @@ export interface Phases {
   flip: number;
   /** 0 → 1 while the camera rides the path through the second level. */
   drift: number;
+  /** 0 → 1 while the block is taken apart, one line per threshold. */
+  strip: number;
 }
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
@@ -76,6 +79,7 @@ export default class Director {
     sweep: 0,
     flip: 0,
     drift: 0,
+    strip: 0,
   };
 
   constructor() {
@@ -135,6 +139,7 @@ export default class Director {
     this.phases.sweep = this.progress(this.panels.sweep, scroll);
     this.phases.flip = this.progress(this.panels.flip, scroll);
     this.phases.drift = this.progress(this.panels.drift, scroll);
+    this.phases.strip = this.progress(this.panels.strip, scroll);
 
     return this.phases;
   }

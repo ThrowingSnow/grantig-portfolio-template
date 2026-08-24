@@ -33,6 +33,8 @@ export default class PostFX {
 
   /** Elapsed time the current tear runs out at. */
   private glitchUntil = 0;
+  /** How hard that tear pulls — a threshold kicks softer than the click does. */
+  private glitchScale = 1;
 
   constructor({ scene }: Props) {
     this.commons = Commons.getInstance();
@@ -67,9 +69,15 @@ export default class PostFX {
     this.composer.addPass(this.shiftPass);
   }
 
-  /** Fires a single tear through the frame — the click sets the mass loose. */
-  glitch() {
-    this.glitchUntil = this.commons.elapsedTime + TUNE.glitch.time;
+  /**
+   * Fires a single tear through the frame — the click sets the mass loose, and
+   * the thresholds of the last panel each give it a shorter one. `scale` is
+   * both how far it tears and how long it lasts, so a kick reads as a smaller
+   * version of the same event rather than as a different one.
+   */
+  glitch(scale = 1) {
+    this.glitchScale = scale;
+    this.glitchUntil = this.commons.elapsedTime + TUNE.glitch.time * scale;
   }
 
   onResize() {
@@ -90,9 +98,10 @@ export default class PostFX {
     uniforms.uLens.value = lens.strength;
     uniforms.uDeflect.value = TUNE.post.deflect;
     uniforms.uRingAmount.value = TUNE.post.ring;
-    uniforms.uGlitchAmount.value = TUNE.glitch.amount;
+    uniforms.uGlitchAmount.value = TUNE.glitch.amount * this.glitchScale;
     uniforms.uGlitch.value = clamp01(
-      (this.glitchUntil - this.commons.elapsedTime) / Math.max(0.01, TUNE.glitch.time)
+      (this.glitchUntil - this.commons.elapsedTime) /
+        Math.max(0.01, TUNE.glitch.time * this.glitchScale)
     );
 
     // The shader measures in uv space, where the full viewport height is 1 —

@@ -218,6 +218,39 @@ export const TUNE = {
   },
 
   /**
+   * The panel that takes the block apart again.
+   *
+   * One threshold per line, spread over the panel — cross one and that line is
+   * shoved out of the frame, dragging the negative of the ground in behind it
+   * in its own letters' height. The order the lines go in is drawn at random
+   * when the block is built, so none of these numbers say *which* line: they
+   * say how hard a line is pushed and how closely its band follows it.
+   *
+   * Shares of the panel like the anvil's, and pixels at the camera's own
+   * distance like everything else held against the lens.
+   */
+  strip: {
+    /** Share of the panel before the first line goes. */
+    lead: 0.06,
+    /** Share left over after the last one is out. */
+    tail: 0.12,
+    /** How much of the panel one line takes to leave, 0…1. */
+    travel: 0.3,
+    /** How far past the frame edge it is driven, in frame widths. */
+    push: 1.3,
+    /** How far it winds up against the way out before it goes, in pixels. */
+    wind: 40,
+    /** How far it turns on the way out, in radians. */
+    spin: 0.28,
+    /** How far the band lags behind the line pulling it, 0…1. */
+    drag: 0.55,
+    /** Height of the band, in the height of the letters it was cut from. */
+    band: 1,
+    /** How far behind the block the bands are held, in pixels. */
+    behind: 180,
+  },
+
+  /**
    * The second level: the camera comes off its fixed spot and rides a Bézier
    * through a run of word gates. This is the one place where a world unit is no
    * longer a CSS pixel, so everything here is in path units, not in pixels.

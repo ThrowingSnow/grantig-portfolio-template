@@ -524,6 +524,7 @@ const PHASES: Array<[string, number]> = [
   ["sweep", 0.5],
   ["flip", 0.6],
   ["drift", 0.3],
+  ["strip", 0.15],
 ];
 
 for (const [panel, offset] of PHASES) {
