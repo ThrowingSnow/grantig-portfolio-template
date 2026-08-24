@@ -21,6 +21,8 @@ export interface Copy {
   core: string;
   /** One word per gate on the second level's ride. */
   drift: Array<string>;
+  /** One line per band the block's lines cut out of the ground. */
+  etch: Array<string>;
 }
 
 export interface Tuning {
@@ -126,6 +128,7 @@ export function readCopy(): Copy {
     ).map(read),
     core: read(document.querySelector('[data-webgl="core"]')),
     drift: Array.from(document.querySelectorAll('[data-webgl="drift"]')).map(read),
+    etch: Array.from(document.querySelectorAll('[data-webgl="etch"]')).map(read),
   };
 }
 
@@ -147,6 +150,7 @@ export function applyCopy(copy: Partial<Copy>) {
 
   rewrite("paragraph", copy.paragraphs);
   rewrite("drift", copy.drift);
+  rewrite("etch", copy.etch);
 }
 
 /** Replaces every `<p>` of one kind with one per entry, in the same place. */

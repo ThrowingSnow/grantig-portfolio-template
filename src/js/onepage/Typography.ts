@@ -8,6 +8,17 @@ export interface Glyph {
   size: THREE.Vector3;
 }
 
+/**
+ * A glyph drawn as its own outline instead of as a solid — the contours of the
+ * shape and of every hole in it, as line segments. Same centring as `Glyph`, so
+ * the two are interchangeable wherever a letter is placed.
+ */
+export interface Outline {
+  geometry: THREE.BufferGeometry;
+  offset: THREE.Vector3;
+  size: THREE.Vector3;
+}
+
 export interface GlyphOptions {
   size: number;
   depth: number;
@@ -48,6 +59,7 @@ export interface LayoutOptions {
  */
 export default class Typography {
   private glyphs: Map<string, Glyph> = new Map();
+  private outlines: Map<string, Outline> = new Map();
 
   private constructor(public readonly font: Font) {}
 
@@ -120,6 +132,65 @@ export default class Typography {
   }
 
   /**
+   * The same character as a hairline: the glyph's contours drawn as lines, with
+   * nothing filled in.
+   *
+   * WebGL draws every line one pixel wide whatever `linewidth` says, which is
+   * usually a nuisance and here is the whole point — a letter that stays a
+   * hairline however large it is set reads as something that could break, and
+   * that is exactly what it has to be against the solid block it is set on.
+   *
+   * `curveSegments` is what fragile costs: it is how finely the round parts are
+   * cut, and every step up multiplies the segment count of every O and S in the
+   * copy. Four is enough at the sizes these are set at.
+   */
+  outline(char: string, size: number, curveSegments = 4): Outline | null {
+    if (char === " ") return null;
+
+    const key = `outline|${char}|${size}|${curveSegments}`;
+    const cached = this.outlines.get(key);
+    if (cached) return cached;
+
+    const points: Array<number> = [];
+
+    // Closed loops: the last point is joined back to the first, or every letter
+    // would be drawn with one segment of itself missing.
+    const contour = (path: Array<THREE.Vector2>) => {
+      for (let i = 0; i < path.length; i++) {
+        const a = path[i];
+        const b = path[(i + 1) % path.length];
+        points.push(a.x, a.y, 0, b.x, b.y, 0);
+      }
+    };
+
+    for (const shape of this.font.generateShapes(char, size)) {
+      contour(shape.getPoints(curveSegments));
+      for (const hole of shape.holes) contour(hole.getPoints(curveSegments));
+    }
+
+    if (!points.length) return null;
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute(
+      "position",
+      new THREE.Float32BufferAttribute(points, 3)
+    );
+
+    geometry.computeBoundingBox();
+    const box = geometry.boundingBox as THREE.Box3;
+
+    const offset = box.getCenter(new THREE.Vector3());
+    const measure = box.getSize(new THREE.Vector3());
+
+    geometry.translate(-offset.x, -offset.y, -offset.z);
+
+    const outline: Outline = { geometry, offset, size: measure };
+    this.outlines.set(key, outline);
+
+    return outline;
+  }
+
+  /**
    * Lays out one or more paragraphs into a centered block of a given max width.
    * Lines are word-wrapped and center-aligned, the whole block is centered
    * around (0, 0) so it can simply be dropped at the middle of the screen.
@@ -188,5 +259,8 @@ export default class Typography {
   dispose() {
     this.glyphs.forEach((glyph) => glyph.geometry.dispose());
     this.glyphs.clear();
+
+    this.outlines.forEach((outline) => outline.geometry.dispose());
+    this.outlines.clear();
   }
 }

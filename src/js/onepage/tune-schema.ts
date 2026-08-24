@@ -185,6 +185,23 @@ export const TUNE_GROUPS: Array<KnobGroup> = [
     ],
   },
   {
+    title: "The copy in the bands",
+    phase: "etch",
+    note: "Hairline outlines thrown into the bands the block left behind. Jump to etch and scroll through it.",
+    knobs: [
+      { path: "etch.lead", label: "First letter at", min: 0, max: 0.4, step: 0.01 },
+      { path: "etch.rows", label: "Lines spread over", min: 0, max: 0.7, step: 0.01 },
+      { path: "etch.stagger", label: "Arrival spread", min: 0, max: 0.6, step: 0.01 },
+      { path: "etch.settle", label: "A letter takes", min: 0.05, max: 0.6, step: 0.01 },
+      { path: "etch.fade", label: "Comes up over", min: 0.05, max: 1, step: 0.01 },
+      { path: "etch.throw", label: "Thrown in from", min: 0, max: 14, step: 0.25, unit: "×", structural: true },
+      { path: "etch.tumble", label: "Tumble", min: 0, max: 12, step: 0.1, structural: true },
+      { path: "etch.height", label: "Share of the band", min: 0.15, max: 1, step: 0.01 },
+      { path: "etch.fill", label: "Widest line", min: 0.3, max: 1, step: 0.01 },
+      { path: "etch.float", label: "Held in front of bands by", min: 0, max: 200, step: 5, unit: "px" },
+    ],
+  },
+  {
     title: "The second level",
     phase: "drift",
     note: "The camera ride. Jump to flip or drift — none of it moves before that.",

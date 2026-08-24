@@ -10,6 +10,7 @@ import CoreText from "./CoreText";
 import DeformArrow from "./DeformArrow";
 import Director, { Phases } from "./Director";
 import DriftText from "./DriftText";
+import EtchedLines from "./EtchedLines";
 import GravityGrid from "./GravityGrid";
 import GravityWell from "./GravityWell";
 import LetterField from "./LetterField";
@@ -19,7 +20,13 @@ import PostFX from "./PostFX";
 import SurfaceGate from "./SurfaceGate";
 import Typography from "./Typography";
 
-import { COLORS, DRIFT_FONT_URL, FONT_URL, sphereRadius } from "./settings";
+import {
+  COLORS,
+  DRIFT_FONT_URL,
+  ETCH_FONT_URL,
+  FONT_URL,
+  sphereRadius,
+} from "./settings";
 import { embedded, install, restore, restoreCopy } from "./tuning";
 
 /**
@@ -27,7 +34,7 @@ import { embedded, install, restore, restoreCopy } from "./tuning";
  * screen readers and crawlers — WebGL only draws what is written there.
  */
 /** The panels that only exist once the sphere has been clicked. */
-const LOCKED = ["sweep", "flip", "drift", "strip"];
+const LOCKED = ["sweep", "flip", "drift", "strip", "etch"];
 
 const readText = (element: Element | null) =>
   (element?.textContent ?? "").replace(/\s+/g, " ").trim().toUpperCase();
@@ -63,6 +70,10 @@ const readText = (element: Element | null) =>
  *                shoved out of the frame drags the negative of the ground in
  *                behind it, in its own letters' height, so the page ends on the
  *                black and white stack of bands its lines cut out of the level.
+ * 13. Etch     — those bands are written into: one line of copy each, drawn as
+ *                hairline outlines in the pale they were cut out of, every
+ *                letter thrown in from somewhere else and tumbling into place
+ *                in an order drawn at random.
  *
  * Steps 8 to 10 are locked away until the sphere has been clicked: the panels
  * carrying them have no height until then, so the document ends at the sphere
@@ -77,6 +88,7 @@ class OnePage {
   private director!: Director;
   private typography!: Typography;
   private driftFace!: Typography;
+  private etchFace!: Typography;
 
   private banner!: BannerText;
   private arrow!: DeformArrow;
@@ -90,6 +102,7 @@ class OnePage {
   private drift!: DriftText;
   private anvil!: AnvilText;
   private bands!: NegativeBands;
+  private etch!: EtchedLines;
   private postFX!: PostFX;
 
   private pointerLight!: THREE.PointLight;
@@ -120,15 +133,17 @@ class OnePage {
       restoreCopy();
     }
 
-    // Both faces up front: the second level's words are built while the scene
+    // Every face up front: the second level's words are built while the scene
     // is, so its first gate cannot pop in halfway through the crossing.
-    const [typography, driftFace] = await Promise.all([
+    const [typography, driftFace, etchFace] = await Promise.all([
       Typography.load(FONT_URL),
       Typography.load(DRIFT_FONT_URL),
+      Typography.load(ETCH_FONT_URL),
     ]);
 
     this.typography = typography;
     this.driftFace = driftFace;
+    this.etchFace = etchFace;
 
     this.commons = Commons.getInstance();
     this.commons.init();
@@ -249,6 +264,14 @@ class OnePage {
     // Draws what the block leaves behind, so it is only ever asked after the
     // block has worked out where its lines are this frame.
     this.bands = new NegativeBands({ scene: this.scene });
+
+    this.etch = new EtchedLines({
+      scene: this.scene,
+      typography: this.etchFace,
+      lines: Array.from(document.querySelectorAll('[data-webgl="etch"]'))
+        .map(readText)
+        .filter(Boolean),
+    });
   }
 
   /**
@@ -383,6 +406,7 @@ class OnePage {
     this.drift.update(phases);
     this.anvil.update(phases);
     this.bands.update(this.anvil.strips);
+    this.etch.update(phases, this.anvil.strips);
 
     // Every threshold of the last panel tears the frame the way the click did,
     // at a fraction of it: the line is shoved, and the frame is shoved with it.
@@ -403,7 +427,9 @@ class OnePage {
     this.pointerLight.position.x = this.pointer.smooth.x;
     this.pointerLight.position.y = this.pointer.smooth.y;
 
-    if (phases.strip > 0) {
+    if (phases.etch > 0) {
+      this.updateHud("etch", phases.etch);
+    } else if (phases.strip > 0) {
       this.updateHud("strip", phases.strip);
     } else if (phases.drift > 0) {
       this.updateHud("drift", phases.drift);
@@ -468,9 +494,11 @@ class OnePage {
     this.well.onResize();
     this.core.onResize();
     this.drift.onResize();
-    // Nothing about the block depends on the viewport, but its proportions are
-    // a knob, and a structural knob is handed on as a resize.
+    // Nothing about the block or the copy in the bands depends on the viewport,
+    // but their proportions are knobs, and a structural knob is handed on as a
+    // resize.
     this.anvil.rebuild();
+    this.etch.rebuild();
 
     this.syncTriggerSize();
 

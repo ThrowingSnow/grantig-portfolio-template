@@ -9,6 +9,13 @@ export const FONT_URL = "/fonts/helvetiker_bold.typeface.json";
 export const DRIFT_FONT_URL = "/fonts/gentilis_bold.typeface.json";
 
 /**
+ * The copy written into the bands. A regular cut rather than a bold one:
+ * these letters are drawn as their own outline, and the outline of a bold
+ * face is two heavy contours running side by side — the opposite of fragile.
+ */
+export const ETCH_FONT_URL = "/fonts/helvetiker_regular.typeface.json";
+
+/**
  * Every number the scene is tuned with, in one mutable object.
  *
  * Mutable on purpose: `/config.html` runs this page in an iframe and writes
@@ -248,6 +255,36 @@ export const TUNE = {
     band: 1,
     /** How far behind the block the bands are held, in pixels. */
     behind: 180,
+  },
+
+  /**
+   * The copy thrown into the bands the block left behind.
+   *
+   * Drawn as hairline outlines and set in the pale the bands were cut out of,
+   * so it is the positive of the ground standing in the negative of it. Shares
+   * of its own panel, as everywhere else on this level.
+   */
+  etch: {
+    /** Share of the panel before the first letter is thrown. */
+    lead: 0.04,
+    /** Share of it the lines are spread over, top to bottom. */
+    rows: 0.34,
+    /** Spread of the arrivals within one line. */
+    stagger: 0.24,
+    /** How long one letter takes to land, as a share of the panel. */
+    settle: 0.3,
+    /** Share of that landing spent coming up out of nothing. */
+    fade: 0.35,
+    /** How far a letter is thrown in from, in the height it is built at. */
+    throw: 5,
+    /** How far it tumbles on the way, in radians. */
+    tumble: 3.4,
+    /** Share of the band's height the letters are set at, 0…1. */
+    height: 0.62,
+    /** Widest a line may get, as a share of the frame. */
+    fill: 0.82,
+    /** How far in front of the bands the copy is held, in pixels. */
+    float: 60,
   },
 
   /**

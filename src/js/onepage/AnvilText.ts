@@ -51,6 +51,8 @@ interface Line {
   side: 1 | -1;
   /** Its place in the order the lines are taken away in. */
   order: number;
+  /** Where it sits in the block, counted from the top. */
+  row: number;
 }
 
 /**
@@ -59,6 +61,14 @@ interface Line {
  * them into quads held at its own distance.
  */
 export interface Strip {
+  /**
+   * The line this band was cut by, counted from the top of the block. Not the
+   * band's place in this array: only the lines already on their way out are in
+   * here, so an index into it means something different every threshold, and
+   * anything that has to keep talking about the *same* band across the panel
+   * — the copy set into it, a step later — needs the number that does not move.
+   */
+  row: number;
   y: number;
   height: number;
   /** How much of the frame the band has taken over, 0…1. */
@@ -254,6 +264,7 @@ export default class AnvilText {
         reach: Math.max(1, size.x / 2),
         side: random() < 0.5 ? -1 : 1,
         order: slots[index],
+        row: index,
       } as Line;
     });
   }
@@ -400,6 +411,7 @@ export default class AnvilText {
       // behind the line that is pulling it and catches up exactly as that line
       // clears the frame. `drag` is how far behind.
       bands.push({
+        row: line.row,
         y: blockY + line.home.y * fit,
         height: line.height * fit * strip.band,
         cover: Math.pow(launch, 1 + strip.drag * 3),

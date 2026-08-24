@@ -8,7 +8,8 @@ black sphere catches them, and a click sends it out of the scene — towing the
 whole swarm into the depth with it, before the next block of copy pops back out
 of that same depth, spelled with the same letters. Past that, a second level
 the camera rides through, ending on a block of text that comes apart one line
-per scroll threshold and leaves the negative of the ground behind it.
+per scroll threshold and leaves the negative of the ground behind it — and a
+last panel that writes into those bands in hairline letters.
 
 Built on top of the [codrops WebGL text demo](#original-demo) — three.js, lenis
 and a velocity-driven post-processing pass — extended with `cannon-es` for the
@@ -168,6 +169,28 @@ the copy down there stays readable to screen readers and crawlers throughout.
     and what is left is the stack of bands its lines cut out of it: the page
     ends on black and white, which is where it started.
 
+13. **Etch** — the bands are written into. One line of copy per band, drawn as
+    the glyphs' own outlines and nothing else: WebGL draws every line one pixel
+    wide whatever `linewidth` says, which is usually a nuisance and here is the
+    whole design — a letter that stays a hairline however large it is set reads
+    as something that could break, which is what it has to be after twelve
+    panels of solid, lit, extruded matter. Set in a regular cut rather than a
+    bold one, because the outline of a bold face is two heavy contours running
+    side by side. Its colour is the pale the bands were cut out of, so the copy
+    is the positive of the ground standing in the negative of it.
+
+    The letters are not laid down, they are thrown. Each one comes in from
+    somewhere else — near and far alike, tumbling on all three axes — on its own
+    moment of the scroll, and comes up out of nothing as it travels, so a letter
+    still halfway across the frame is not competing with the ones that have
+    landed. The order is drawn at random, so a line collects rather than
+    spelling itself out left to right, and it is only a line once the last
+    letter has stopped.
+
+    The bands are read off `AnvilText` every frame rather than measured again,
+    and matched by `Strip.row` — the copy for the third line of the block goes
+    in the band the third line cut, whatever order they were cut in.
+
 **This is where the page's founding convention ends.** Up to the crossing the
 camera sits at z = 1000 with a fov chosen so one world unit is one CSS pixel,
 which is what lets every module above lay itself out in pixels. `CameraRig` is
@@ -187,7 +210,15 @@ there and the scene follows:
 <p data-webgl="paragraph">Ut enim ad minim veniam quis nostrud …</p>
 ...
 <p data-webgl="core">Sed ut perspiciatis unde omnis iste natus error sit …</p>
+...
+<p data-webgl="drift">Adipisci</p>
+...
+<p data-webgl="etch">Quis autem vel eum</p>
 ```
+
+The `drift` words are one per gate on the second level's ride, and the `etch`
+lines are one per band — a line more than the block has lines is simply never
+placed, a line less leaves that band empty.
 
 Every character is its own mesh, and while it is falling also its own physics
 body — so the copy has to stay short. Around 300 characters for the paragraphs

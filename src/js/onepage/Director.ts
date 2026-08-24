@@ -9,7 +9,8 @@ export type PanelName =
   | "sweep"
   | "flip"
   | "drift"
-  | "strip";
+  | "strip"
+  | "etch";
 
 interface Panel {
   top: number;
@@ -43,6 +44,8 @@ export interface Phases {
   drift: number;
   /** 0 → 1 while the block is taken apart, one line per threshold. */
   strip: number;
+  /** 0 → 1 while the copy is thrown into the bands that are left. */
+  etch: number;
 }
 
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
@@ -80,6 +83,7 @@ export default class Director {
     flip: 0,
     drift: 0,
     strip: 0,
+    etch: 0,
   };
 
   constructor() {
@@ -140,6 +144,7 @@ export default class Director {
     this.phases.flip = this.progress(this.panels.flip, scroll);
     this.phases.drift = this.progress(this.panels.drift, scroll);
     this.phases.strip = this.progress(this.panels.strip, scroll);
+    this.phases.etch = this.progress(this.panels.etch, scroll);
 
     return this.phases;
   }

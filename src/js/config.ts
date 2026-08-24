@@ -308,6 +308,7 @@ function currentDraft(): Copy {
     paragraphs: live?.paragraphs ?? [],
     core: live?.core ?? "",
     drift: live?.drift ?? [],
+    etch: live?.etch ?? [],
   };
 
   draft = next;
@@ -363,6 +364,16 @@ function buildCopy() {
       get: () => value.drift.join("\n"),
       set: (text) => {
         value.drift = text.split("\n").map((word) => word.trim()).filter(Boolean);
+      },
+    },
+    {
+      key: "etch",
+      label: "In the bands — one line per band",
+      rows: 6,
+      shipped: measure((shipped?.etch ?? []).join(" ")),
+      get: () => value.etch.join("\n"),
+      set: (text) => {
+        value.etch = text.split("\n").map((line) => line.trim()).filter(Boolean);
       },
     },
   ];
@@ -501,6 +512,10 @@ function toMarkup(copy: Copy) {
     .map((word) => `  <p data-webgl="drift">${word}</p>`)
     .join("\n");
 
+  const etch = copy.etch
+    .map((line) => `  <p data-webgl="etch">${line}</p>`)
+    .join("\n");
+
   return [
     `<h1 class="visually-hidden" data-webgl="banner">${copy.banner}</h1>`,
     "",
@@ -509,6 +524,8 @@ function toMarkup(copy: Copy) {
     `<p data-webgl="core">${copy.core}</p>`,
     "",
     drift,
+    "",
+    etch,
   ].join("\n");
 }
 
@@ -525,6 +542,7 @@ const PHASES: Array<[string, number]> = [
   ["flip", 0.6],
   ["drift", 0.3],
   ["strip", 0.15],
+  ["etch", 0.5],
 ];
 
 for (const [panel, offset] of PHASES) {

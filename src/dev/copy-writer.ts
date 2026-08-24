@@ -33,6 +33,7 @@ interface Copy {
   paragraphs: Array<string>;
   core: string;
   drift: Array<string>;
+  etch: Array<string>;
 }
 
 const escape = (text: string) =>
@@ -129,17 +130,20 @@ const isCopy = (value: unknown): value is Copy => {
     typeof copy.core === "string" &&
     Array.isArray(copy.paragraphs) &&
     Array.isArray(copy.drift) &&
+    Array.isArray(copy.etch) &&
     copy.paragraphs.every((text) => typeof text === "string") &&
-    copy.drift.every((word) => typeof word === "string")
+    copy.drift.every((word) => typeof word === "string") &&
+    copy.etch.every((text) => typeof text === "string")
   );
 };
 
-/** Rewrites the four blocks and leaves the rest of the file — comments too — alone. */
+/** Rewrites the five blocks and leaves the rest of the file — comments too — alone. */
 export function writeCopy(html: string, copy: Copy) {
   let out = replace(html, "h1", "banner", clean([copy.banner]));
   out = replace(out, "p", "paragraph", clean(copy.paragraphs));
   out = replace(out, "p", "core", clean([copy.core]));
   out = replace(out, "p", "drift", clean(copy.drift));
+  out = replace(out, "p", "etch", clean(copy.etch));
 
   return out;
 }
